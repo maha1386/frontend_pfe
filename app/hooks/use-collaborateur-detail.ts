@@ -1,6 +1,6 @@
 // hooks/use-collaborateur-detail.ts
 
-import { useState, useEffect } from "react";
+import { useState, useEffect, useCallback } from "react";
 import { getCollaborateurById, CollaborateurDetail } from "../services/collaborateur.service";
 
 export function useCollaborateurDetail(id: number) {
@@ -8,7 +8,7 @@ export function useCollaborateurDetail(id: number) {
   const [loading, setLoading] = useState(true);
   const [error, setError] = useState<string | null>(null);
 
-  useEffect(() => {
+  const fetchCollaborateur = useCallback(async () => {
     if (!id) return;
     setLoading(true);
     setError(null);
@@ -18,5 +18,9 @@ export function useCollaborateurDetail(id: number) {
       .finally(() => setLoading(false));
   }, [id]);
 
-  return { collaborateur, loading, error };
+  useEffect(() => {
+    fetchCollaborateur();
+  }, [fetchCollaborateur]);
+
+  return { collaborateur, loading, error, refetch: fetchCollaborateur };
 }

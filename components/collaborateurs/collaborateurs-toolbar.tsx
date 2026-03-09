@@ -8,6 +8,8 @@ interface CollaborateursToolbarProps {
   onSearchChange: (value: string) => void;
   statusFilter: StatusFilter;
   onStatusFilterChange: (value: StatusFilter) => void;
+  roleFilter: string;                                  
+  onRoleFilterChange: (value: string) => void;           
   onNouveau: () => void;
 }
 
@@ -16,6 +18,7 @@ export function CollaborateursToolbar({
   onSearchChange,
   statusFilter,
   onStatusFilterChange,
+  roleFilter, onRoleFilterChange,
   onNouveau,
 }: CollaborateursToolbarProps) {
   return (
@@ -41,6 +44,14 @@ export function CollaborateursToolbar({
         <option value="all">Tous les statuts</option>
         <option value="active">Actif</option>
         <option value="inactive">Inactif</option>
+      </select>
+      <select
+        value={roleFilter}
+        onChange={(e) => onRoleFilterChange(e.target.value)}
+        className="px-4 py-2.5 border border-gray-200 rounded-xl bg-white text-sm focus:outline-none focus:ring-2 focus:ring-blue-500 cursor-pointer"
+      >
+        <option value="all">Tous les rôles</option>
+        <option value="new_collaborateur">Nouveau collaborateur</option>
       </select>
 
       {/* Bouton Nouveau */}

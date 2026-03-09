@@ -7,25 +7,36 @@ import { CollaborateursToolbar } from "../../../components/collaborateurs/collab
 import { CollaborateursTable } from "../../../components/collaborateurs/collaborateurs-table";
 import { CollaborateursPagination } from "../../../components/collaborateurs/collaborateurs-pagination";
 import { CollaborateurCreateModal } from "../../../components/collaborateurs/collaborateur-create-modal";
+import { CollaborateurModifierModal } from "../../../components/collaborateurs/collaborateur-modifier-modal";
 import { Collaborateur } from "../../types/collaborateur.types";
+import { CollaborateurDetail } from "@/app/services/collaborateur.service";
 import { useRouter } from "next/navigation";
-
 
 export default function CollaborateursPage() {
   const [isModalOpen, setIsModalOpen] = useState(false);
+  const [collaborateurToModify, setCollaborateurToModify] = useState<CollaborateurDetail | null>(null);
 
   const {
     filtered, pagination, loading, error,
-    search, setSearch, statusFilter, setStatusFilter,
+    search, setSearch, statusFilter, setStatusFilter, roleFilter, setRoleFilter,
     sortField, sortDir, handleSort, handleToggleActive, handlePageChange,
-    fetchCollaborateurs, 
+    fetchCollaborateurs,
   } = useCollaborateurs();
 
-  const handleModifier = (collaborateur: Collaborateur) => {
-    console.log("Modifier", collaborateur);
-  };
-
   const router = useRouter();
+
+  const handleModifier = (collaborateur: Collaborateur) => {
+  setCollaborateurToModify({
+    id: collaborateur.id,
+    last_name: collaborateur.last_name,
+    first_name: collaborateur.first_name,
+    email: collaborateur.email,
+    phone_number: collaborateur.phone_number,
+    date_of_hire: collaborateur.date_of_hire,
+    active: collaborateur.active,
+    role: collaborateur.role.name,
+  });
+};
 
   const handleDetails = (collaborateur: Collaborateur) => {
     router.push(`/dashboard/collaborateur/${collaborateur.id}`);
@@ -50,7 +61,9 @@ export default function CollaborateursPage() {
         onSearchChange={setSearch}
         statusFilter={statusFilter}
         onStatusFilterChange={setStatusFilter}
-        onNouveau={() => setIsModalOpen(true)} 
+        roleFilter={roleFilter}
+        onRoleFilterChange={setRoleFilter}
+        onNouveau={() => setIsModalOpen(true)}
       />
 
       <CollaborateursTable
@@ -70,13 +83,18 @@ export default function CollaborateursPage() {
           onPageChange={handlePageChange}
         />
       )}
+
       <CollaborateurCreateModal
         isOpen={isModalOpen}
         onClose={() => setIsModalOpen(false)}
-        onSuccess={() => {
-          setIsModalOpen(false);
-          fetchCollaborateurs();
-        }}
+        onSuccess={() => { fetchCollaborateurs(); }}
+      />
+
+      <CollaborateurModifierModal
+        isOpen={!!collaborateurToModify}
+        collaborateur={collaborateurToModify}
+        onClose={() => setCollaborateurToModify(null)}
+        onSuccess={() => { setCollaborateurToModify(null); fetchCollaborateurs(); }}
       />
     </div>
   );

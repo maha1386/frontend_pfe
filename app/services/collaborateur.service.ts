@@ -10,6 +10,8 @@ const authHeaders = () => ({
   "Content-Type": "application/json",
 });
 
+// ─── Types ────────────────────────────────────────────────────────────────────
+
 export interface CollaborateursResponse {
   data: Collaborateur[];
   current_page: number;
@@ -19,6 +21,12 @@ export interface CollaborateursResponse {
   to: number;
 }
 
+export interface CollaborateursFilters {
+  page?: number;
+  role?: string;
+  active?: boolean;
+}
+
 export interface CreateCollaborateurPayload {
   last_name: string;
   first_name: string;
@@ -26,7 +34,6 @@ export interface CreateCollaborateurPayload {
   phone_number: string;
   date_of_hire: string;
   role: string;
-
 }
 
 export interface CreateCollaborateurResponse {
@@ -36,10 +43,17 @@ export interface CreateCollaborateurResponse {
     password_temporaire: string;
   };
 }
+
+export interface UpdateCollaborateurPayload {
+  phone_number?: string;
+  role?: string;
+}
+
 export interface Role {
   id: number;
   name: string;
 }
+
 export interface CollaborateurDetail {
   id: number;
   last_name: string;
@@ -50,29 +64,18 @@ export interface CollaborateurDetail {
   active: boolean;
   role: string;
 }
-export async function getCollaborateurById(id: number): Promise<CollaborateurDetail> {
-  const res = await fetch(`${API_BASE}/collaborateurs/${id}`, {
-    headers: authHeaders(),
-  });
-  if (!res.ok) throw new Error(`Erreur ${res.status} : collaborateur introuvable`);
-  const data = await res.json();
-  return data.collaborateur;
-}
 
-export async function getRoles(): Promise<Role[]> {
-  const res = await fetch(`${API_BASE}/roles`, { headers: authHeaders() });
-  if (!res.ok) throw new Error(`Erreur ${res.status} : impossible de récupérer les rôles`);
-  
-  const data = await res.json();
+// ─── GET /api/collaborateurs ──────────────────────────────────────────────────
 
-  console.log("roles backend :", data);
+export async function getCollaborateurs(
+  filters: CollaborateursFilters = {}
+): Promise<CollaborateursResponse> {
+  const params = new URLSearchParams();
+  if (filters.page) params.append("page", String(filters.page));
+  if (filters.role) params.append("role", filters.role);
+  if (filters.active !== undefined) params.append("active", String(filters.active));
 
-  // sécurité : si data.roles n'est pas un array, retourne un tableau vide
-  return Array.isArray(data.roles) ? data.roles : [];
-}
-// GET /api/collaborateurs
-export async function getCollaborateurs(page = 1): Promise<CollaborateursResponse> {
-  const res = await fetch(`${API_BASE}/collaborateurs?page=${page}`, {
+  const res = await fetch(`${API_BASE}/collaborateurs?${params.toString()}`, {
     headers: authHeaders(),
   });
   if (!res.ok) throw new Error(`Erreur ${res.status} : impossible de récupérer les collaborateurs`);
@@ -87,7 +90,29 @@ export async function getCollaborateurs(page = 1): Promise<CollaborateursRespons
     to: p.to,
   };
 }
-// POST /api/collaborateurs
+
+// ─── GET /api/collaborateurs/:id ─────────────────────────────────────────────
+
+export async function getCollaborateurById(id: number): Promise<CollaborateurDetail> {
+  const res = await fetch(`${API_BASE}/collaborateurs/${id}`, {
+    headers: authHeaders(),
+  });
+  if (!res.ok) throw new Error(`Erreur ${res.status} : collaborateur introuvable`);
+  const data = await res.json();
+  return data.collaborateur;
+}
+
+// ─── GET /api/roles ───────────────────────────────────────────────────────────
+
+export async function getRoles(): Promise<Role[]> {
+  const res = await fetch(`${API_BASE}/roles`, { headers: authHeaders() });
+  if (!res.ok) throw new Error(`Erreur ${res.status} : impossible de récupérer les rôles`);
+  const data = await res.json();
+  return Array.isArray(data.roles) ? data.roles : [];
+}
+
+// ─── POST /api/collaborateurs ─────────────────────────────────────────────────
+
 export async function createCollaborateur(
   payload: CreateCollaborateurPayload
 ): Promise<CreateCollaborateurResponse> {
@@ -112,7 +137,35 @@ export async function createCollaborateur(
   return data;
 }
 
-// PATCH /api/staff/:id/toggle-active
+// ─── PATCH /api/collaborateurs/:id ───────────────────────────────────────────
+
+export async function updateCollaborateur(
+  id: number,
+  payload: UpdateCollaborateurPayload
+): Promise<CollaborateurDetail> {
+  const res = await fetch(`${API_BASE}/collaborateurs/${id}`, {
+    method: "PATCH",
+    headers: authHeaders(),
+    body: JSON.stringify(payload),
+  });
+  const data = await res.json();
+  if (!res.ok) {
+    if (res.status === 422 && data.errors) {
+      const error = new Error("Validation échouée") as Error & {
+        validationErrors: Record<string, string>;
+      };
+      error.validationErrors = Object.fromEntries(
+        Object.entries(data.errors).map(([key, val]) => [key, (val as string[])[0]])
+      );
+      throw error;
+    }
+    throw new Error(data.message ?? `Erreur ${res.status}`);
+  }
+  return data.collaborateur;
+}
+
+// ─── PATCH /api/staff/:id/toggle-active ──────────────────────────────────────
+
 export async function toggleCollaborateurActive(id: number): Promise<void> {
   const res = await fetch(`${API_BASE}/staff/${id}/toggle-active`, {
     method: "PATCH",
