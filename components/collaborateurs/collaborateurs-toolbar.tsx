@@ -1,0 +1,67 @@
+// components/collaborateurs/CollaborateursToolbar.tsx
+
+import { Search, UserPlus } from "lucide-react";
+import { StatusFilter } from "../../app/types/collaborateur.types";
+
+interface CollaborateursToolbarProps {
+  search: string;
+  onSearchChange: (value: string) => void;
+  statusFilter: StatusFilter;
+  onStatusFilterChange: (value: StatusFilter) => void;
+  roleFilter: string;                                  
+  onRoleFilterChange: (value: string) => void;           
+  onNouveau: () => void;
+}
+
+export function CollaborateursToolbar({
+  search,
+  onSearchChange,
+  statusFilter,
+  onStatusFilterChange,
+  roleFilter, onRoleFilterChange,
+  onNouveau,
+}: CollaborateursToolbarProps) {
+  return (
+    <div className="flex items-center gap-4 flex-wrap">
+      {/* Recherche */}
+      <div className="relative flex-1 min-w-[260px] max-w-lg">
+        <Search className="absolute left-3 top-1/2 -translate-y-1/2 w-4 h-4 text-gray-400" />
+        <input
+          type="text"
+          placeholder="Rechercher par nom, prénom ou email..."
+          value={search}
+          onChange={(e) => onSearchChange(e.target.value)}
+          className="w-full pl-10 pr-4 py-2.5 border border-gray-200 rounded-xl bg-white text-sm focus:outline-none focus:ring-2 focus:ring-blue-500 focus:border-transparent"
+        />
+      </div>
+
+      {/* Filtre statut */}
+      <select
+        value={statusFilter}
+        onChange={(e) => onStatusFilterChange(e.target.value as StatusFilter)}
+        className="px-4 py-2.5 border border-gray-200 rounded-xl bg-white text-sm focus:outline-none focus:ring-2 focus:ring-blue-500 cursor-pointer"
+      >
+        <option value="all">Tous les statuts</option>
+        <option value="active">Actif</option>
+        <option value="inactive">Inactif</option>
+      </select>
+      <select
+        value={roleFilter}
+        onChange={(e) => onRoleFilterChange(e.target.value)}
+        className="px-4 py-2.5 border border-gray-200 rounded-xl bg-white text-sm focus:outline-none focus:ring-2 focus:ring-blue-500 cursor-pointer"
+      >
+        <option value="all">Tous les rôles</option>
+        <option value="new_collaborateur">Nouveau collaborateur</option>
+      </select>
+
+      {/* Bouton Nouveau */}
+      <button
+        onClick={onNouveau}
+        className="ml-auto flex items-center gap-2 px-5 py-2.5 bg-blue-600 hover:bg-blue-700 text-white text-sm font-medium rounded-xl transition-colors"
+      >
+        <UserPlus className="w-4 h-4" />
+        Nouveau
+      </button>
+    </div>
+  );
+}
