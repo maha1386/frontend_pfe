@@ -6,7 +6,8 @@ import Image from "next/image";
 
 export default function LoginPage() {
   const [isPasswordChange, setIsPasswordChange] = useState(false);
-  const [loginMessage, setLoginMessage] = useState(""); // Nouveau message
+  const [loginMessage, setLoginMessage] = useState("");
+
   useEffect(() => {
     document.title =
       "SmartOnboard – Plateforme intelligente d'intégration des collaborateurs";
@@ -98,64 +99,68 @@ export default function LoginPage() {
             const password = (form.elements.namedItem("password") as HTMLInputElement).value;
 
             try {
-                const res = await fetch("http://localhost:8000/api/login", {
+              await fetch("http://localhost:8000/sanctum/csrf-cookie", {
+                credentials: "include",
+              });
+
+              const res = await fetch("http://localhost:8000/api/login", {
                 method: "POST",
-                headers: { "Content-Type": "application/json" },
+                headers: {
+                  "Content-Type": "application/json",
+                  Accept: "application/json",
+                },
                 body: JSON.stringify({ email, password }),
-                });
+                credentials: "include",
+              });
 
-                const data = await res.json();
+              const data = await res.json();
 
-                if (res.ok) {
+              if (res.ok) {
+                // Stocker le token pour les requêtes suivantes
+                localStorage.setItem("token", data.token);
 
-                  // ON STOCKE TOUJOURS LE TOKEN
-                  localStorage.setItem("token", data.token);
-
-                  //  On vérifie le bon champ envoyé par ton backend
-                  if (data.force_password_change) {
-                      setIsPasswordChange(true); // affiche le formulaire
-                  } else {
-                      window.location.href = "/dashboard";
-                  }
-                }else {
-                  setLoginMessage(data.message || "Email ou mot de passe incorrect");
+                if (data.force_password_change) {
+                  setIsPasswordChange(true);
+                } else {
+                  window.location.href = "/dashboard/RH";
                 }
+              } else {
+                setLoginMessage(data.message || "Email ou mot de passe incorrect");
+              }
             } catch (err) {
-                alert("Erreur de connexion, vérifiez le serveur.");
-                console.error(err);
+              alert("Erreur de connexion, vérifiez le serveur.");
+              console.error(err);
             }
-            }}
+          }}
         >
           <div>
             <label className="block text-sm font-medium text-gray-700 mb-2">
               Adresse e-mail
             </label>
             <div className="relative">
-            <span className="absolute left-3 top-1/2 -translate-y-1/2 text-gray-400">
-                {/* Icône mail */}
+              <span className="absolute left-3 top-1/2 -translate-y-1/2 text-gray-400">
                 <svg
-                xmlns="http://www.w3.org/2000/svg"
-                className="h-5 w-5"
-                fill="none"
-                viewBox="0 0 24 24"
-                stroke="currentColor"
+                  xmlns="http://www.w3.org/2000/svg"
+                  className="h-5 w-5"
+                  fill="none"
+                  viewBox="0 0 24 24"
+                  stroke="currentColor"
                 >
-                <path
+                  <path
                     strokeLinecap="round"
                     strokeLinejoin="round"
                     strokeWidth={2}
                     d="M3 8l7.89 5.26a2 2 0 002.22 0L21 8M5 19h14a2 2 0 002-2V7a2 2 0 00-2-2H5a2 2 0 00-2 2v10a2 2 0 002 2z"
-                />
+                  />
                 </svg>
-            </span>
-
-            <input
+              </span>
+              <input
                 type="email"
                 name="email"
                 placeholder="Entrez votre adresse email"
-                className="w-full pl-10 px-4 py-3 bg-white border border-gray-200 rounded-lg 
-                        placeholder-gray-400 text-gray-900 focus:outline-none focus:ring-2 focus:ring-blue-500 focus:border-transparent"
-            />
+                className="w-full pl-10 px-4 py-3 bg-white border border-gray-200 rounded-lg
+                  placeholder-gray-400 text-gray-900 focus:outline-none focus:ring-2 focus:ring-blue-500 focus:border-transparent"
+              />
             </div>
           </div>
 
@@ -164,53 +169,54 @@ export default function LoginPage() {
               Mot de passe
             </label>
             <div className="relative">
-            <input
-                type="password"
-                name="password"
-                placeholder="Entrez votre mot de passe"
-                className="w-full px-4 py-3 pl-10 bg-white border border-gray-200 rounded-lg 
-                        placeholder-gray-400 text-gray-900 focus:outline-none focus:ring-2 focus:ring-blue-500 focus:border-transparent"
-            />
-            {/* Icône cadenas */}
-            <svg
+              <svg
                 className="w-5 h-5 text-gray-400 absolute left-3 top-1/2 -translate-y-1/2"
                 fill="none"
                 stroke="currentColor"
                 viewBox="0 0 24 24"
-            >
+              >
                 <path
-                strokeLinecap="round"
-                strokeLinejoin="round"
-                strokeWidth={2}
-                d="M12 15v2m-6 4h12a2 2 0 002-2v-6a2 2 0 00-2-2H6a2 2 0 00-2 2v6a2 2 0 002 2zm10-10V7a4 4 0 00-8 0v4h8z"
+                  strokeLinecap="round"
+                  strokeLinejoin="round"
+                  strokeWidth={2}
+                  d="M12 15v2m-6 4h12a2 2 0 002-2v-6a2 2 0 00-2-2H6a2 2 0 00-2 2v6a2 2 0 002 2zm10-10V7a4 4 0 00-8 0v4h8z"
                 />
-            </svg>
+              </svg>
+              <input
+                type="password"
+                name="password"
+                placeholder="Entrez votre mot de passe"
+                className="w-full px-4 py-3 pl-10 bg-white border border-gray-200 rounded-lg
+                  placeholder-gray-400 text-gray-900 focus:outline-none focus:ring-2 focus:ring-blue-500 focus:border-transparent"
+              />
             </div>
           </div>
 
           <button
             type="submit"
             className="w-full bg-[#1e293b] text-white py-3 rounded-lg hover:bg-[#0f172a] transition-colors flex items-center justify-center gap-2"
-            >
+          >
             Se connecter
             <svg
-                className="w-5 h-5"
-                fill="none"
-                stroke="currentColor"
-                viewBox="0 0 24 24"
+              className="w-5 h-5"
+              fill="none"
+              stroke="currentColor"
+              viewBox="0 0 24 24"
             >
-                <path
+              <path
                 strokeLinecap="round"
                 strokeLinejoin="round"
                 strokeWidth={2}
                 d="M14 5l7 7m0 0l-7 7m7-7H3"
-                />
+              />
             </svg>
-            </button>
-                            {/* Message dynamique */}
-                {loginMessage && (
-                    <p className="mt-3 text-center text-red-500 font-medium">{loginMessage}</p>
-                )}
+          </button>
+
+          {loginMessage && (
+            <p className="mt-3 text-center text-red-500 font-medium">
+              {loginMessage}
+            </p>
+          )}
         </form>
       </div>
     </div>
@@ -225,83 +231,97 @@ export default function LoginPage() {
           <p className="text-gray-500">Définissez votre nouveau mot de passe</p>
         </div>
 
-      <form
-        className="space-y-5"
-        onSubmit={async (e) => {
-          e.preventDefault();
-          const form = e.target as HTMLFormElement;
-          const newPassword = (form.elements.namedItem("newPassword") as HTMLInputElement).value;
-          const confirmPassword = (form.elements.namedItem("confirmPassword") as HTMLInputElement).value;
+        <form
+          className="space-y-5"
+          onSubmit={async (e) => {
+            e.preventDefault();
+            const form = e.target as HTMLFormElement;
+            const newPassword = (form.elements.namedItem("newPassword") as HTMLInputElement).value;
+            const confirmPassword = (form.elements.namedItem("confirmPassword") as HTMLInputElement).value;
 
-          if (!newPassword || !confirmPassword) {
-            alert("Veuillez remplir tous les champs");
-            return;
-          }
-
-          if (newPassword !== confirmPassword) {
-            alert("Les mots de passe ne correspondent pas !");
-            return;
-          }
-
-          try {
-            const token = localStorage.getItem("token");
-            if (!token) {
-              alert("Session expirée, reconnectez-vous.");
+            if (!newPassword || !confirmPassword) {
+              alert("Veuillez remplir tous les champs");
               return;
             }
 
-            const res = await fetch("http://localhost:8000/api/set-password", {
-              method: "POST",
-              headers: {
-                "Content-Type": "application/json",
-                Authorization: `Bearer ${token}`,
-              },
-              body: JSON.stringify({ password: newPassword }),
-            });
-
-            const data = await res.json();
-
-            if (!res.ok) {
-              console.error("Erreur backend:", res.status, data);
-              alert(data.message || "Erreur lors du changement de mot de passe");
+            if (newPassword !== confirmPassword) {
+              alert("Les mots de passe ne correspondent pas !");
               return;
             }
 
-            alert("Mot de passe changé avec succès !");
-            window.location.href = "/dashboard";
-          } catch (err) {
-            console.error(err);
-            alert("Erreur serveur, réessayez plus tard.");
-          }
-        }}
-      >
+            try {
+
+              const token = localStorage.getItem("token");
+
+              if (!token) {
+                alert("Session expirée, veuillez vous reconnecter.");
+                setIsPasswordChange(false);
+                return;
+              }
+
+              await fetch("http://localhost:8000/sanctum/csrf-cookie", {
+                credentials: "include",
+              });
+
+              // Envoyer la requête avec le token Bearer
+              const res = await fetch("http://localhost:8000/api/set-password", {
+                method: "POST",
+                credentials: "include",
+                headers: {
+                  "Content-Type": "application/json",
+                  Accept: "application/json",
+                  Authorization: `Bearer ${token}`, // ✅ FIX : token ajouté
+                },
+                body: JSON.stringify({ 
+                  new_password: newPassword, 
+                  new_password_confirmation: confirmPassword  // ← AJOUTE ÇA
+                }),
+              });
+
+              const text = await res.text();
+              console.log("Status:", res.status);
+              console.log("Response text:", text);
+
+              if (!res.ok) {
+                alert("Erreur: " + text);
+                return;
+              }
+
+              alert("Mot de passe changé avec succès !");
+              localStorage.removeItem("token"); // Nettoyer le token temporaire
+              window.location.href = "/dashboard";
+            } catch (err) {
+              console.error("Erreur complète:", err);
+              alert("Erreur serveur, réessayez plus tard.");
+            }
+          }}
+        >
           <div>
             <label className="block text-sm text-gray-700 mb-2">
               Nouveau mot de passe
             </label>
             <div className="relative">
-                {/* Icône cadenas à gauche */}
-                <svg
-                    className="w-5 h-5 text-gray-400 absolute left-3 top-1/2 -translate-y-1/2"
-                    fill="none"
-                    stroke="currentColor"
-                    viewBox="0 0 24 24"
-                >
-                    <path
-                    strokeLinecap="round"
-                    strokeLinejoin="round"
-                    strokeWidth={2}
-                    d="M12 15v2m-6 4h12a2 2 0 002-2v-6a2 2 0 00-2-2H6a2 2 0 00-2 2v6a2 2 0 002 2zm10-10V7a4 4 0 00-8 0v4h8z"
-                    />
-                </svg>
-
-                <input
-                    type="password" name="newPassword"
-                    placeholder="Entrez votre nouveau mot de passe"
-                    className="w-full px-4 py-3 pl-10 bg-gray-50 border border-gray-200 rounded-lg 
-                            placeholder-gray-400 text-gray-900 focus:outline-none focus:ring-2 focus:ring-blue-500 focus:border-transparent"
+              <svg
+                className="w-5 h-5 text-gray-400 absolute left-3 top-1/2 -translate-y-1/2"
+                fill="none"
+                stroke="currentColor"
+                viewBox="0 0 24 24"
+              >
+                <path
+                  strokeLinecap="round"
+                  strokeLinejoin="round"
+                  strokeWidth={2}
+                  d="M12 15v2m-6 4h12a2 2 0 002-2v-6a2 2 0 00-2-2H6a2 2 0 00-2 2v6a2 2 0 002 2zm10-10V7a4 4 0 00-8 0v4h8z"
                 />
-                </div>
+              </svg>
+              <input
+                type="password"
+                name="newPassword"
+                placeholder="Entrez votre nouveau mot de passe"
+                className="w-full px-4 py-3 pl-10 bg-gray-50 border border-gray-200 rounded-lg
+                  placeholder-gray-400 text-gray-900 focus:outline-none focus:ring-2 focus:ring-blue-500 focus:border-transparent"
+              />
+            </div>
           </div>
 
           <div>
@@ -309,51 +329,50 @@ export default function LoginPage() {
               Confirmer le mot de passe
             </label>
             <div className="relative">
-                {/* Icône cadenas à gauche */}
-                <svg
-                    className="w-5 h-5 text-gray-400 absolute left-3 top-1/2 -translate-y-1/2"
-                    fill="none"
-                    stroke="currentColor"
-                    viewBox="0 0 24 24"
-                >
-                    <path
-                    strokeLinecap="round"
-                    strokeLinejoin="round"
-                    strokeWidth={2}
-                    d="M12 15v2m-6 4h12a2 2 0 002-2v-6a2 2 0 00-2-2H6a2 2 0 00-2 2v6a2 2 0 002 2zm10-10V7a4 4 0 00-8 0v4h8z"
-                    />
-                </svg>
-
-                <input
-                    type="password" name="confirmPassword"
-                    placeholder="Confirmez votre mot de passe"
-                    className="w-full px-4 py-3 pl-10 bg-gray-50 border border-gray-200 rounded-lg 
-                            placeholder-gray-400 text-gray-900 focus:outline-none focus:ring-2 focus:ring-blue-500 focus:border-transparent"
+              <svg
+                className="w-5 h-5 text-gray-400 absolute left-3 top-1/2 -translate-y-1/2"
+                fill="none"
+                stroke="currentColor"
+                viewBox="0 0 24 24"
+              >
+                <path
+                  strokeLinecap="round"
+                  strokeLinejoin="round"
+                  strokeWidth={2}
+                  d="M12 15v2m-6 4h12a2 2 0 002-2v-6a2 2 0 00-2-2H6a2 2 0 00-2 2v6a2 2 0 002 2zm10-10V7a4 4 0 00-8 0v4h8z"
                 />
-                </div>
+              </svg>
+              <input
+                type="password"
+                name="confirmPassword"
+                placeholder="Confirmez votre mot de passe"
+                className="w-full px-4 py-3 pl-10 bg-gray-50 border border-gray-200 rounded-lg
+                  placeholder-gray-400 text-gray-900 focus:outline-none focus:ring-2 focus:ring-blue-500 focus:border-transparent"
+              />
+            </div>
           </div>
 
           <button
             type="submit"
             className="w-full bg-[#1e293b] text-white py-3 rounded-lg hover:bg-[#0f172a] transition-colors flex items-center justify-center gap-2"
-            >
+          >
             Changer le mot de passe
-            {/* Icône flèche à gauche */}
+
+
             <svg
-                className="w-5 h-5"
-                fill="none"
-                stroke="currentColor"
-                viewBox="0 0 24 24"
+              className="w-5 h-5"
+              fill="none"
+              stroke="currentColor"
+              viewBox="0 0 24 24"
             >
-                <path
+              <path
                 strokeLinecap="round"
                 strokeLinejoin="round"
                 strokeWidth={2}
                 d="M14 5l7 7m0 0l-7 7m7-7H3"
-                />
+              />
             </svg>
-
-            </button>
+          </button>
         </form>
       </div>
     </div>
@@ -362,7 +381,7 @@ export default function LoginPage() {
   return (
     <div className="flex min-h-screen">
 
-      {/* Affichage conditionnel et inversion gauche/droite */}
+
       {!isPasswordChange ? (
         <>
           <BluePanel />
