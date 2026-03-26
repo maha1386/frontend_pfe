@@ -7,7 +7,7 @@ import {
   CollaborateurDetail,
   UpdateCollaborateurPayload,
   Role,
-} from "../services/collaborateur.service";
+} from "../../services/collaborateur.service";
 
 interface FormData {
   phone_number: string;

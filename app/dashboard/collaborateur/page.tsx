@@ -2,7 +2,7 @@
 
 import { useState } from "react";
 import { AlertCircle } from "lucide-react";
-import { useCollaborateurs } from "../../hooks/use-collaborateurs";
+import { useCollaborateurs } from "../../hooks/collaborateur/use-collaborateurs";
 import { CollaborateursToolbar } from "../../../components/collaborateurs/collaborateurs-toolbar";
 import { CollaborateursTable } from "../../../components/collaborateurs/collaborateurs-table";
 import { CollaborateursPagination } from "../../../components/collaborateurs/collaborateurs-pagination";

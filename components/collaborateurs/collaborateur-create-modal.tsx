@@ -5,7 +5,7 @@ import {
   X, UserPlus, Loader2, Check,
   User, Mail, Phone, Calendar, Building2, ChevronDown,
 } from "lucide-react";
-import { useCreateCollaborateur } from "../../app/hooks/use-create-collaborateur";
+import { useCreateCollaborateur } from "../../app/hooks/collaborateur/use-create-collaborateur";
 
 interface CollaborateurCreateModalProps {
   isOpen: boolean;

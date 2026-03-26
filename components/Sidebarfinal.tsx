@@ -9,6 +9,7 @@ import {
   FileText,
   Home,
   Mail,
+  Shield,
 } from 'lucide-react';
 import Link from 'next/link';
 import { usePathname } from 'next/navigation';
@@ -20,12 +21,15 @@ interface SidebarProps {
 
 export function SidebarFinal({ isOpen }: SidebarProps) {
   const pathname = usePathname();
-
-  // ✅ useState et useEffect INSIDE le composant
   const [collabTotal, setCollabTotal] = useState<string>("0");
 
   useEffect(() => {
-    setCollabTotal(localStorage.getItem("collaborateurs_total") ?? "0");
+    const update = () => {
+      setCollabTotal(localStorage.getItem("collaborateurs_total") ?? "0");
+    };
+    update();
+    window.addEventListener("collaborateurs_total_updated", update);
+    return () => window.removeEventListener("collaborateurs_total_updated", update);
   }, []);
 
   const menuSections = [
@@ -34,6 +38,7 @@ export function SidebarFinal({ isOpen }: SidebarProps) {
       items: [
         { icon: Home, label: 'Tableau de bord', href: '/dashboard' },
         { icon: Users, label: 'Collaborateurs', href: '/dashboard/collaborateur', badge: collabTotal },
+        { icon: Shield, label: 'Rôles', href: '/dashboard/roles'},
         { icon: FolderOpen, label: 'Projets', href: '/dashboard/projets', badge: '12' },
       ],
     },

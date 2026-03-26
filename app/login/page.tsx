@@ -2,11 +2,13 @@
 
 import { useState, useEffect } from "react";
 import { Zap, Shield, Users } from "lucide-react";
+import { useRouter } from "next/navigation";
 import Image from "next/image";
 
 export default function LoginPage() {
   const [isPasswordChange, setIsPasswordChange] = useState(false);
   const [loginMessage, setLoginMessage] = useState("");
+  const router = useRouter();
 
   useEffect(() => {
     document.title =
@@ -102,7 +104,7 @@ export default function LoginPage() {
           if (data.force_password_change) {
             setIsPasswordChange(true);
           } else {
-            window.location.href = "/dashboard/collaborateur"; // Redirection vers le dashboard
+             router.push("/dashboard/collaborateur"); // Redirection vers le dashboard
           }
         } else {
           setLoginMessage(data.message || "Email ou mot de passe incorrect");

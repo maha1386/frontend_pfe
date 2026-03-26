@@ -1,9 +1,10 @@
 "use client";
 
-import { Menu, Bell, Mail, ChevronDown, LogOut, Loader2 } from "lucide-react";
+import { Menu, Mail, ChevronDown, LogOut, Loader2 } from "lucide-react";
 import Image from "next/image";
 import { useState, useEffect } from "react";
 import { useRouter } from "next/navigation";
+import { NotificationsDropdown } from "@/components/notifications/notifications-dropdown";
 
 interface User {
   id: number;
@@ -38,7 +39,6 @@ export function HeaderFinal({ onMenuToggle }: HeaderProps) {
           const data = await res.json();
           setUser(data);
         } else {
-          // Token invalide → retour login
           router.push("/login");
         }
       } catch (err) {
@@ -106,16 +106,10 @@ export function HeaderFinal({ onMenuToggle }: HeaderProps) {
           <span className="absolute top-1.5 right-1.5 w-2 h-2 bg-gradient-to-br from-orange-500 to-red-600 rounded-full" />
         </button>
 
-        {/* Notifications */}
-        <button className="relative p-2.5 hover:bg-white/10 rounded-xl transition-all group">
-          <Bell className="w-5 h-5 text-white/80 group-hover:text-white transition-colors" />
-          <span className="absolute top-1.5 right-1.5 flex h-5 w-5">
-            <span className="animate-ping absolute inline-flex h-full w-full rounded-full bg-orange-400 opacity-75" />
-            <span className="relative inline-flex rounded-full h-5 w-5 bg-gradient-to-br from-orange-500 to-red-600 items-center justify-center text-white text-xs font-medium">
-              3
-            </span>
-          </span>
-        </button>
+        {/* Notifications dropdown — remplace le bouton Bell statique */}
+        <div className="text-white">
+          <NotificationsDropdown />
+        </div>
 
         <div className="h-8 w-px bg-white/20 mx-2" />
 

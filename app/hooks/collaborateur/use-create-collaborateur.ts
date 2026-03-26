@@ -6,7 +6,7 @@ import {
   getRoles,
   CreateCollaborateurPayload,
   Role,
-} from "../services/collaborateur.service";
+} from "../../services/collaborateur.service";
 
 export interface FormData {
   last_name: string;

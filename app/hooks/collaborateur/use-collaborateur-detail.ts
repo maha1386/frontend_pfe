@@ -1,7 +1,7 @@
 // hooks/use-collaborateur-detail.ts
 
 import { useState, useEffect, useCallback } from "react";
-import { getCollaborateurById, CollaborateurDetail } from "../services/collaborateur.service";
+import { getCollaborateurById, CollaborateurDetail } from "../../services/collaborateur.service";
 
 export function useCollaborateurDetail(id: number) {
   const [collaborateur, setCollaborateur] = useState<CollaborateurDetail | null>(null);

@@ -4,11 +4,14 @@ import { Collaborateur } from "../types/collaborateur.types";
 
 const API_BASE = process.env.NEXT_PUBLIC_API_URL ?? "http://localhost:8000/api";
 
-const authHeaders = () => ({
-  Authorization: `Bearer ${localStorage.getItem("token")}`,
-  Accept: "application/json",
-  "Content-Type": "application/json",
-});
+const authHeaders = () => {
+  const token = typeof window !== "undefined" ? localStorage.getItem("token") : null;
+  return {
+    Authorization: `Bearer ${token ?? ""}`,
+    Accept: "application/json",
+    "Content-Type": "application/json",
+  };
+};
 
 // ─── Types ────────────────────────────────────────────────────────────────────
 

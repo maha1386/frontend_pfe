@@ -6,7 +6,7 @@ import {
   User, Mail, Phone, Calendar, Building2, ChevronDown,
 } from "lucide-react";
 import { CollaborateurDetail } from "../../app/services/collaborateur.service";
-import { useModifierCollaborateur } from "@/app/hooks/use-modifier-collaborateur";
+import { useModifierCollaborateur } from "../../app/hooks/collaborateur/use-modifier-collaborateur";
 
 interface CollaborateurModifierModalProps {
   isOpen: boolean;

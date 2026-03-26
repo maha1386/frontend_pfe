@@ -7,12 +7,12 @@ import {
   SortField,
   SortDir,
   StatusFilter,
-} from "../types/collaborateur.types";
+} from "../../types/collaborateur.types";
 import {
   getCollaborateurs,
   toggleCollaborateurActive,
   CollaborateursFilters,
-} from "../services/collaborateur.service";
+} from "../../services/collaborateur.service";
 
 export function useCollaborateurs() {
   const [collaborateurs, setCollaborateurs] = useState<Collaborateur[]>([]);
@@ -33,6 +33,8 @@ export function useCollaborateurs() {
   // ─── Fetch ────────────────────────────────────────────────────────────────
 
   const fetchCollaborateurs = useCallback(async () => {
+    const token = localStorage.getItem("token");
+    if (!token) return;
     setLoading(true);
     setError(null);
     try {
@@ -55,6 +57,7 @@ export function useCollaborateurs() {
         to: res.to,
       });
       localStorage.setItem("collaborateurs_total", String(res.total));
+      window.dispatchEvent(new Event("collaborateurs_total_updated"));
     } catch (err) {
       setError(err instanceof Error ? err.message : "Erreur inconnue");
     } finally {

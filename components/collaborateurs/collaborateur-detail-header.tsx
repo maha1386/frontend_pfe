@@ -7,13 +7,9 @@ import { CollaborateurDetail } from "../../app/services/collaborateur.service";
 import { formatDate } from "../../app/lib/utils";
 
 function getRoleGradient(role: string): string {
-  switch (role?.toLowerCase()) {
-    case "manager":      return "linear-gradient(135deg, #f97316 0%, #ea580c 100%)";
-    case "rh":           return "linear-gradient(135deg, #ec4899 0%, #db2777 100%)";
-    case "designer":     return "linear-gradient(135deg, #8b5cf6 0%, #7c3aed 100%)";
-    case "dev":          return "linear-gradient(135deg, #10b981 0%, #059669 100%)";
-    default:             return "linear-gradient(135deg, #3b82f6 0%, #2563eb 100%)";
-  }
+  const hash = role.split("").reduce((acc, char) => acc + char.charCodeAt(0), 0);
+  const hue = hash % 360;
+  return `linear-gradient(135deg, hsl(${hue}, 70%, 55%) 0%, hsl(${hue}, 60%, 40%) 100%)`;
 }
 
 function getRoleLabel(role: string): string {

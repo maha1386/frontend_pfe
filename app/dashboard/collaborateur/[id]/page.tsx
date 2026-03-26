@@ -3,7 +3,7 @@
 
 import { use, useState } from "react";
 import { AlertCircle, Loader2 } from "lucide-react";
-import { useCollaborateurDetail } from "../../../hooks/use-collaborateur-detail";
+import { useCollaborateurDetail } from "../../../hooks/collaborateur/use-collaborateur-detail";
 import { CollaborateurDetailHeader } from "../../../../components/collaborateurs/collaborateur-detail-header";
 import { CollaborateurDetailCards } from "../../../../components/collaborateurs/collaborateur-detail-cards";
 import { CollaborateurModifierModal } from "@/components/collaborateurs/collaborateur-modifier-modal";
@@ -17,7 +17,7 @@ export default function CollaborateurDetailPage({ params }: PageProps) {
   const { id } = use(params);
   const { collaborateur, loading, error, refetch } = useCollaborateurDetail(Number(id));
 
-  // ✅ Tous les hooks avant les returns conditionnels
+  // Tous les hooks avant les returns conditionnels
   const [activeTab, setActiveTab] = useState("Profil");
   const [isModifierOpen, setIsModifierOpen] = useState(false);
   const [toggleError, setToggleError] = useState<string | null>(null);
