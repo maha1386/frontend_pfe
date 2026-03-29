@@ -44,7 +44,7 @@ export function RhsToolbar({
         className="ml-auto flex items-center gap-2 px-5 py-2.5 bg-blue-600 hover:bg-blue-700 text-white text-sm font-medium rounded-xl transition-colors"
       >
         <UserPlus className="w-4 h-4" />
-        Ajouter
+        Nouveau
       </button>
     </div>
   );

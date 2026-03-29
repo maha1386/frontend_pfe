@@ -80,7 +80,7 @@ export default function LoginPage() {
     </div>
   );
 
-  // Composant LoginForm
+
   const LoginForm = () => (
     <div className="w-1/2 bg-gray-50 flex flex-col items-center justify-center p-12">
       <div className="w-full max-w-md">
@@ -116,14 +116,22 @@ export default function LoginPage() {
               const data = await res.json();
 
               if (res.ok) {
-                // Stocker le token pour les requêtes suivantes
-                localStorage.setItem("token", data.token);
 
-                if (data.force_password_change) {
-                  setIsPasswordChange(true);
-                } else {
-                  window.location.href = "/dashboard/RH";
-                }
+                localStorage.setItem("token", data.token);
+                localStorage.setItem("role", data.user.role);
+
+                  if (data.force_password_change) {
+                    setIsPasswordChange(true);
+                  } else {
+                    const role = data.user.role;
+                    if (role === "MANAGER") {
+                      window.location.href = "/dashboard/RH";
+                    } else if (role === "rh") {
+                      window.location.href = "/dashboard/document";
+                    } else {
+                      window.location.href = "/dashboard"; 
+                    }
+                  }
               } else {
                 setLoginMessage(data.message || "Email ou mot de passe incorrect");
               }
@@ -222,7 +230,7 @@ export default function LoginPage() {
     </div>
   );
 
-  // Composant PasswordChangeForm
+
   const PasswordChangeForm = () => (
     <div className="w-1/2 bg-white flex flex-col items-center justify-center p-12">
       <div className="w-full max-w-md">
@@ -263,18 +271,18 @@ export default function LoginPage() {
                 credentials: "include",
               });
 
-              // Envoyer la requête avec le token Bearer
+
               const res = await fetch("http://localhost:8000/api/set-password", {
                 method: "POST",
                 credentials: "include",
                 headers: {
                   "Content-Type": "application/json",
                   Accept: "application/json",
-                  Authorization: `Bearer ${token}`, // ✅ FIX : token ajouté
+                  Authorization: `Bearer ${token}`, 
                 },
                 body: JSON.stringify({ 
                   new_password: newPassword, 
-                  new_password_confirmation: confirmPassword  // ← AJOUTE ÇA
+                  new_password_confirmation: confirmPassword  
                 }),
               });
 
@@ -288,8 +296,8 @@ export default function LoginPage() {
               }
 
               alert("Mot de passe changé avec succès !");
-              localStorage.removeItem("token"); // Nettoyer le token temporaire
-              window.location.href = "/dashboard";
+              localStorage.removeItem("token");
+              window.location.href = "/dashboard/document";
             } catch (err) {
               console.error("Erreur complète:", err);
               alert("Erreur serveur, réessayez plus tard.");

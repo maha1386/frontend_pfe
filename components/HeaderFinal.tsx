@@ -40,6 +40,8 @@ export function HeaderFinal({ onMenuToggle }: HeaderProps) {
         if (res.ok) {
           const data = await res.json();
           setUser(data);
+        } else {
+          router.push("/login");
         }
       } catch (err) {
         console.error("Erreur fetch user:", err);
@@ -55,7 +57,10 @@ export function HeaderFinal({ onMenuToggle }: HeaderProps) {
     const token = localStorage.getItem("token");
     await fetch("http://127.0.0.1:8000/api/logout", {
       method: "POST",
-      headers: { Authorization: `Bearer ${token}`, Accept: "application/json" },
+      headers: {
+        Authorization: `Bearer ${token}`,
+        Accept: "application/json",
+      },
     });
     localStorage.removeItem("token");
     document.cookie = "auth_token=; path=/; max-age=0";
@@ -69,7 +74,9 @@ export function HeaderFinal({ onMenuToggle }: HeaderProps) {
   const fullName = user ? `${user.first_name} ${user.last_name}` : "";
 
   return (
-    <header className="fixed top-0 left-0 w-full h-16 bg-gradient-to-r from-gray-900 via-gray-800 to-gray-900 border-b border-gray-700 flex items-center px-6 gap-6 shadow-lg z-50">
+    // ✅ h-16 sans fixed — reste dans le flux normal
+    <header className="h-16 bg-gradient-to-r from-gray-900 via-gray-800 to-gray-900 border-b border-gray-700 flex items-center px-6 gap-6 shadow-lg z-50 relative">
+      
       {/* Bouton Menu */}
       <button
         onClick={onMenuToggle}
@@ -97,6 +104,7 @@ export function HeaderFinal({ onMenuToggle }: HeaderProps) {
 
       {/* Actions */}
       <div className="flex items-center gap-2">
+
         {/* Messages */}
         <button className="relative p-2.5 hover:bg-white/10 rounded-xl transition-all group">
           <Mail className="w-5 h-5 text-white/80 group-hover:text-white transition-colors" />

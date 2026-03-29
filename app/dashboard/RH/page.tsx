@@ -1,7 +1,7 @@
 "use client";
 
 import { useState } from "react";
-import { AlertCircle, Sidebar } from "lucide-react";
+import { AlertCircle } from "lucide-react";
 import { useRouter } from "next/navigation";
 
 import { useRhs } from "../../hook/useRhs"; 
@@ -11,17 +11,15 @@ import { RhsPagination } from "../../../components/Rh/RhsPagination";
 import { RhCreateModal } from "../../../components/Rh/RhCreateModal";
 import { RhEditModal } from "../../../components/Rh/RhEditModal";
 
-import { SidebarFinal } from "../../../components/Sidebar";
-import { HeaderFinal } from "../../../components/HeaderFinal";
 import { RH } from "../../types/rh.types";
 
 export default function RhPage() {
   const [isModalOpen, setIsModalOpen] = useState(false);
   const [search, setSearch] = useState("");
   const [statusFilter, setStatusFilter] = useState<"all" | "active" | "inactive">("all");
-  const [isSidebarOpen, setIsSidebarOpen] = useState(true);
   const [editingRh, setEditingRh] = useState<RH | null>(null);
   const [isEditModalOpen, setIsEditModalOpen] = useState(false);
+
   const { rhs, loading, error, fetchRhs, toggleActiveRH } = useRhs();
   const router = useRouter();
 
@@ -30,7 +28,7 @@ export default function RhPage() {
   const [currentPage, setCurrentPage] = useState(1);
   const perPage = 5;
 
-
+  // Filtrage
   const filtered = rhs.filter((rh) => {
     const matchSearch =
       rh.first_name.toLowerCase().includes(search.toLowerCase()) ||
@@ -45,14 +43,14 @@ export default function RhPage() {
     return matchSearch && matchStatus;
   });
 
-
+  // Tri
   const sorted = [...filtered].sort((a, b) => {
     const aValue = String(a[sortField] ?? "");
     const bValue = String(b[sortField] ?? "");
     return sortDir === "asc" ? aValue.localeCompare(bValue) : bValue.localeCompare(aValue);
   });
 
-
+  // Pagination
   const paginated = sorted.slice((currentPage - 1) * perPage, currentPage * perPage);
   const pagination = {
     current_page: currentPage,
@@ -61,7 +59,6 @@ export default function RhPage() {
     from: (currentPage - 1) * perPage + 1,
     to: Math.min(currentPage * perPage, sorted.length),
   };
-
 
   const handleSort = (field: keyof RH) => {
     if (field === sortField) setSortDir(sortDir === "asc" ? "desc" : "asc");
@@ -76,31 +73,25 @@ export default function RhPage() {
   const handleModifier = (rh: RH) => {
     setEditingRh(rh);
     setIsEditModalOpen(true);
-    };
+  };
 
   const handleDetails = (rh: RH) => {
     router.push(`/dashboard/RH/${rh.id}`);
   };
-  
+
   return (
-        <div className="bg-gray-50 min-h-screen">
-      {/* Header */}
-      <HeaderFinal onMenuToggle={() => setIsSidebarOpen(!isSidebarOpen)} isSidebarOpen={isSidebarOpen} />
+    <main className="min-h-screen p-6 bg-white">
 
-      {/* Sidebar en position fixe sous le header */}
-      <div
-        className={`fixed top-16 left-0 h-[calc(100vh-4rem)] bg-white border-r border-gray-200 shadow-md z-50 transition-all duration-300
-            ${isSidebarOpen ? "w-64" : "w-16"}`}
-        >
-        <SidebarFinal isOpen={isSidebarOpen} />
-        </div>
+      <div className="max-w-7xl mx-auto">
 
-      {/* Main content avec marge si sidebar ouvert */}
-      <main className={`p-6 transition-all mt-16 ${isSidebarOpen ? "ml-64" : "ml-16"}`}>
         {/* Titre */}
         <div className="mb-4">
-          <h1 className="text-3xl font-bold text-blue-600">Ressources Humaines</h1>
-          <p className="text-gray-500 mt-1">Gérez les utilisateurs RH</p>
+          <h1 className="text-3xl font-bold text-blue-600">
+            Ressources Humaines
+          </h1>
+          <p className="text-gray-500 mt-1">
+            Gérez les utilisateurs RH
+          </p>
         </div>
 
         {/* Erreur */}
@@ -113,13 +104,13 @@ export default function RhPage() {
 
         {/* Toolbar */}
         <div className="mb-6">
-            <RhsToolbar
-                search={search}
-                onSearchChange={setSearch}
-                statusFilter={statusFilter}
-                onStatusFilterChange={setStatusFilter}
-                onNouveau={() => setIsModalOpen(true)}
-            />
+          <RhsToolbar
+            search={search}
+            onSearchChange={setSearch}
+            statusFilter={statusFilter}
+            onStatusFilterChange={setStatusFilter}
+            onNouveau={() => setIsModalOpen(true)}
+          />
         </div>
 
         {/* Table */}
@@ -134,13 +125,17 @@ export default function RhPage() {
           onDetails={handleDetails}
         />
 
-        {/* Pagination avec espace */}
+        {/* Pagination */}
         <div className="mt-4">
-            <RhsPagination pagination={pagination} onPageChange={handlePageChange} />
+          <RhsPagination
+            pagination={pagination}
+            onPageChange={handlePageChange}
+          />
         </div>
-      </main>
 
-      {/* Modal création */}
+      </div>
+
+      {/* Modals */}
       <RhCreateModal
         isOpen={isModalOpen}
         onClose={() => setIsModalOpen(false)}
@@ -149,15 +144,17 @@ export default function RhPage() {
           fetchRhs();
         }}
       />
+
       <RhEditModal
         rh={editingRh}
         isOpen={isEditModalOpen}
         onClose={() => setIsEditModalOpen(false)}
         onSuccess={() => {
-            setIsEditModalOpen(false);
-            fetchRhs(); 
+          setIsEditModalOpen(false);
+          fetchRhs();
         }}
-        />
-    </div>
+      />
+
+    </main>
   );
 }

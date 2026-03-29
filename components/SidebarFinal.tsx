@@ -17,13 +17,14 @@ import { useEffect, useState } from 'react';
 
 interface SidebarProps {
   isOpen: boolean;
-  onToggle: () => void;
+
 }
 
-export function SidebarFinal({ isOpen, onToggle }: SidebarProps) {
+export function SidebarFinal({ isOpen }: SidebarProps) {
   const pathname = usePathname();
   const [collabTotal, setCollabTotal] = useState<string>("0");
-
+  const [role, setRole] = useState<"rh" | "manager">("rh");
+  
   useEffect(() => {
     const update = () => {
       setCollabTotal(localStorage.getItem("collaborateurs_total") ?? "0");
@@ -37,7 +38,7 @@ export function SidebarFinal({ isOpen, onToggle }: SidebarProps) {
     {
       title: 'PRINCIPAL',
       items: [
-        { icon: Home, label: 'Tableau de bord', href: '/dashboard' },
+        { icon: Home, label: 'Tableau de bord', href: '/dashboard/document' },
         { icon: Users, label: 'Collaborateurs', href: '/dashboard/collaborateur', badge: collabTotal },
         { icon: Shield, label: 'Rôles', href: '/dashboard/roles'},
         { icon: FolderOpen, label: 'Projets', href: '/dashboard/projets', badge: '12' },
@@ -114,7 +115,6 @@ export function SidebarFinal({ isOpen, onToggle }: SidebarProps) {
               })}
             </ul>
           </div>
-          
         ))}
 
         <div className="mt-8 p-4 rounded-2xl bg-gradient-to-br from-orange-500/10 to-red-600/10 border border-orange-500/20 opacity-0 group-hover/sidebar:opacity-100 transition-opacity duration-300">

@@ -2,7 +2,7 @@
 
 import { useEffect, useState } from "react";
 import { useParams } from "next/navigation"; 
-import { Loader2, AlertCircle } from "lucide-react";
+import { Loader2, AlertCircle, Sidebar } from "lucide-react";
 import { RHDetailHeader } from "../../../../components/Rh/RHDetailHeader";
 import { RhDetailCards } from "../../../../components/Rh/RhDetailCards";
 import { rhService } from "../../../service/rh.service";
@@ -69,18 +69,8 @@ export default function RhDetailPage() {
   return (
     <div className="bg-white min-h-screen">
       {/* Header */}
-      <HeaderFinal onMenuToggle={() => setIsSidebarOpen(!isSidebarOpen)} isSidebarOpen={isSidebarOpen} />
-
-      {/* Sidebar fixe sous le header */}
-      <div
-        className={`fixed top-16 left-0 h-[calc(100vh-4rem)] bg-white border-r border-gray-200 shadow-md z-50 transition-all duration-300
-          ${isSidebarOpen ? "w-64" : "w-16"}`}
-      >
-        <SidebarFinal isOpen={isSidebarOpen} />
-      </div>
-
       {/* Contenu principal avec marge si sidebar ouvert */}
-      <main className={`p-6 transition-all mt-16 ${isSidebarOpen ? "ml-64" : "ml-16"}`}>
+      <main className={`p-6 transition-all mt-1 ${isSidebarOpen ? "ml-10" : "ml-16"}`}>
         <RHDetailHeader rh={rh} onModifier={handleModifier} onToggleActive={handleToggleActive} />
 
         <div className="flex items-center gap-1 bg-white border border-gray-100 rounded-2xl p-1 w-fit shadow-sm mb-4">
