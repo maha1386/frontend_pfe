@@ -1,7 +1,8 @@
 import type { NextConfig } from "next";
 
 const nextConfig: NextConfig = {
-  /* config options here */
+  allowedDevOrigins: [
+    'medication-seek-symposium-army.trycloudflare.com',
+    'rand-opt-alias-gratuit.trycloudflare.com',
+  ],
 };
-
-export default nextConfig;

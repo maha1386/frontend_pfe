@@ -2,7 +2,7 @@
 
 import { useState } from 'react';
 import { HeaderFinal } from '../../components/Headerfinal';
-import { SidebarFinal } from '../../components/Sidebarfinal';
+import { SidebarFinal } from '../../components/SidebarFinal';
 
 export default function DashboardLayout({
   children,

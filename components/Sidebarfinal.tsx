@@ -17,12 +17,14 @@ import { useEffect, useState } from 'react';
 
 interface SidebarProps {
   isOpen: boolean;
+
 }
 
 export function SidebarFinal({ isOpen }: SidebarProps) {
   const pathname = usePathname();
   const [collabTotal, setCollabTotal] = useState<string>("0");
-
+  const [role, setRole] = useState<"rh" | "manager">("rh");
+  
   useEffect(() => {
     const update = () => {
       setCollabTotal(localStorage.getItem("collaborateurs_total") ?? "0");
@@ -36,7 +38,7 @@ export function SidebarFinal({ isOpen }: SidebarProps) {
     {
       title: 'PRINCIPAL',
       items: [
-        { icon: Home, label: 'Tableau de bord', href: '/dashboard' },
+        { icon: Home, label: 'Tableau de bord', href: '/dashboard/document' },
         { icon: Users, label: 'Collaborateurs', href: '/dashboard/collaborateur', badge: collabTotal },
         { icon: Shield, label: 'Rôles', href: '/dashboard/roles'},
         { icon: FolderOpen, label: 'Projets', href: '/dashboard/projets', badge: '12' },
@@ -46,7 +48,7 @@ export function SidebarFinal({ isOpen }: SidebarProps) {
       title: 'GESTION',
       items: [
         { icon: Calendar, label: 'Calendrier', href: '/dashboard/calendrier' },
-        { icon: FileText, label: 'Documents', href: '/dashboard/documents' },
+        { icon: FileText, label: 'Documents', href: '/dashboard/document' },
         { icon: Mail, label: 'Messages', href: '/dashboard/messages', badge: '3' },
       ],
     },
