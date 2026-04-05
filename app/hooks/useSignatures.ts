@@ -1,6 +1,6 @@
 // hooks/useSignatures.ts
 import { useState, useEffect } from "react";
-import { signatureService } from "../../app/service/signature.service";
+import { signatureService } from "../services/signature.service";
 import { DocumentSignature } from "../types/signature.types";
 
 export function useSignatures() {

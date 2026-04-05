@@ -4,7 +4,7 @@
 import { X, Upload, Save } from "lucide-react";
 import React, { useState } from "react";
 import { MultiSelectCollaborateurs } from "./MultiSelectCollaborateurs";
-import { CollaborateurOption } from "../../app/hook/use-collaborateurs-search";
+import { CollaborateurOption } from "../../app/hooks/use-collaborateurs-search";
 
 interface DocumentCreateModalProps {
   isOpen: boolean;

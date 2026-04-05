@@ -8,8 +8,8 @@ import { TableDocuments } from "../../../components/Document/DocumentsTable";
 import { DocumentsPagination } from "../../../components/Document/DocumentsPagination";
 import { DocumentCreateModal } from "../../../components/Document/DocumentCreateModal";
 import { DocumentEditModal } from "../../../components/Document/DocumentEditModal";
-import { useDocuments } from "../../hook/useDocuments";
-import { documentService } from "@/app/service/document.service";
+import { useDocuments } from "../../hooks/useDocuments";
+import { documentService } from "../../services/document.service";
 
 export default function DocumentsPage() {
   const { documents, loading, error, fetchDocuments, addDocument, updateDocument, deleteDocument } = useDocuments();

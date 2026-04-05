@@ -1,0 +1,40 @@
+2026-04-05T10:17:13Z INF Thank you for trying Cloudflare Tunnel. Doing so, without a Cloudflare account, is a quick way to experiment and try it out. However, be aware that these account-less Tunnels have no uptime guarantee, are subject to the Cloudflare Online Services Terms of Use (https://www.cloudflare.com/website-terms/), and Cloudflare reserves the right to investigate your use of Tunnels for violations of such terms. If you intend to use Tunnels in production you should use a pre-created named tunnel by following: https://developers.cloudflare.com/cloudflare-one/connections/connect-apps
+2026-04-05T10:17:13Z INF Requesting new quick Tunnel on trycloudflare.com...
+2026-04-05T10:17:17Z INF +--------------------------------------------------------------------------------------------+
+2026-04-05T10:17:17Z INF |  Your quick Tunnel has been created! Visit it at (it may take some time to be reachable):  |
+2026-04-05T10:17:17Z INF |  https://painting-adapters-browser-cohen.trycloudflare.com                                 |
+2026-04-05T10:17:17Z INF +--------------------------------------------------------------------------------------------+
+2026-04-05T10:17:17Z INF Cannot determine default configuration path. No file [config.yml config.yaml] in [~/.cloudflared ~/.cloudflare-warp ~/cloudflare-warp]
+2026-04-05T10:17:17Z INF Version 2025.8.1 (Checksum b5d598b00cc3a28cabc5812d9f762819334614bae452db4e7f23eefe7b081556)
+2026-04-05T10:17:17Z INF GOOS: windows, GOVersion: go1.24.2, GoArch: amd64
+2026-04-05T10:17:17Z INF Settings: map[ha-connections:1 protocol:quic url:http://localhost:3000]
+2026-04-05T10:17:17Z INF cloudflared will not automatically update on Windows systems.
+2026-04-05T10:17:17Z INF Generated Connector ID: 056d51f5-3e4d-410b-910a-e747a011a3bb
+2026-04-05T10:17:17Z INF Initial protocol quic
+2026-04-05T10:17:17Z INF ICMP proxy will use 192.168.1.36 as source for IPv4
+2026-04-05T10:17:17Z INF ICMP proxy will use fe80::ee24:c9a2:fee8:c8ef in zone Wi-Fi as source for IPv6
+2026-04-05T10:17:17Z ERR Cannot determine default origin certificate path. No file cert.pem in [~/.cloudflared ~/.cloudflare-warp ~/cloudflare-warp]. You need to specify the origin certificate path by specifying the origincert option in the configuration file, or set TUNNEL_ORIGIN_CERT environment variable originCertPath=
+2026-04-05T10:17:17Z INF cloudflared does not support loading the system root certificate pool on Windows. Please use --origin-ca-pool <PATH> to specify the path to the certificate pool
+2026-04-05T10:17:17Z INF ICMP proxy will use 192.168.1.36 as source for IPv4
+2026-04-05T10:17:17Z INF Tunnel connection curve preferences: [X25519MLKEM768 CurveP256] connIndex=0 event=0 ip=198.41.192.37
+2026-04-05T10:17:17Z INF ICMP proxy will use fe80::ee24:c9a2:fee8:c8ef in zone Wi-Fi as source for IPv6
+2026-04-05T10:17:17Z INF Starting metrics server on 127.0.0.1:20242/metrics
+2026-04-05T10:17:18Z INF Registered tunnel connection connIndex=0 connection=a2b75063-7231-4788-94ce-31850660c032 event=0 ip=198.41.192.37 location=mrs04 protocol=quic
+2026-04-05T10:33:50Z ERR failed to accept incoming stream requests error="failed to accept QUIC stream: write udp [::]:62516->198.41.192.37:7844: wsasendto: A socket operation was attempted to an unreachable network." connIndex=0 event=0 ip=198.41.192.37
+2026-04-05T10:33:50Z ERR failed to run the datagram handler error="write udp [::]:62516->198.41.192.37:7844: wsasendto: A socket operation was attempted to an unreachable network." connIndex=0 event=0 ip=198.41.192.37
+2026-04-05T10:33:50Z ERR failed to serve tunnel connection error="accept stream listener encountered a failure while serving" connIndex=0 event=0 ip=198.41.192.37
+2026-04-05T10:33:50Z ERR Serve tunnel error error="accept stream listener encountered a failure while serving" connIndex=0 event=0 ip=198.41.192.37
+2026-04-05T10:33:50Z INF Retrying connection in up to 1s connIndex=0 event=0 ip=198.41.192.37
+2026-04-05T10:33:52Z INF Tunnel connection curve preferences: [X25519MLKEM768 CurveP256] connIndex=0 event=0 ip=198.41.192.37
+2026-04-05T10:33:52Z ERR Failed to dial a quic connection error="failed to dial to edge with quic: write udp [::]:62516->198.41.192.37:7844: wsasendto: A socket operation was attempted to an unreachable network." connIndex=0 event=0 ip=198.41.192.37
+2026-04-05T10:33:52Z INF Retrying connection in up to 4s connIndex=0 event=0 ip=198.41.192.37
+2026-04-05T10:33:55Z INF Tunnel connection curve preferences: [X25519MLKEM768 CurveP256] connIndex=0 event=0 ip=198.41.200.13
+2026-04-05T10:33:55Z INF Registered tunnel connection connIndex=0 connection=316eaf35-d3ff-4b7d-928d-67681dab626c event=0 ip=198.41.200.13 location=mrs06 protocol=quic
+2026-04-05T12:22:24Z ERR Failed to refresh DNS local resolver error="lookup region1.v2.argotunnel.com: i/o timeout"
+2026-04-05T12:49:59Z ERR failed to run the datagram handler error="write udp [::]:62516->198.41.200.13:7844: wsasendto: An operation on a socket could not be performed because the system lacked sufficient buffer space or because a queue was full." connIndex=0 event=0 ip=198.41.200.13
+2026-04-05T12:49:59Z ERR failed to accept incoming stream requests error="failed to accept QUIC stream: write udp [::]:62516->198.41.200.13:7844: wsasendto: An operation on a socket could not be performed because the system lacked sufficient buffer space or because a queue was full." connIndex=0 event=0 ip=198.41.200.13
+2026-04-05T12:49:59Z ERR failed to serve tunnel connection error="datagram manager encountered a failure while serving" connIndex=0 event=0 ip=198.41.200.13
+2026-04-05T12:49:59Z ERR Serve tunnel error error="datagram manager encountered a failure while serving" connIndex=0 event=0 ip=198.41.200.13
+2026-04-05T12:49:59Z INF Retrying connection in up to 1s connIndex=0 event=0 ip=198.41.200.13
+2026-04-05T12:50:00Z INF Tunnel connection curve preferences: [X25519MLKEM768 CurveP256] connIndex=0 event=0 ip=198.41.200.13
+2026-04-05T12:50:00Z INF Registered tunnel connection connIndex=0 connection=12a21ad8-46f2-47cc-9189-f7fe277d83c1 event=0 ip=198.41.200.13 location=mrs06 protocol=quic

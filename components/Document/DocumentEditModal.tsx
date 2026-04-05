@@ -3,7 +3,7 @@
 import { X, Upload, Save } from "lucide-react";
 import React, { useState, useEffect } from "react";
 import { Document } from "@/app/types/document.types";
-import { documentService } from "@/app/service/document.service";
+import { documentService } from "@/app/services/document.service";
 
 interface Props {
   document: Document | null;

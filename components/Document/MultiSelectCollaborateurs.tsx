@@ -3,7 +3,7 @@
 
 import { useState, useRef, useEffect } from "react";
 import { X, Search, Loader2, User } from "lucide-react";
-import { useCollaborateursSearch, CollaborateurOption } from "../../app/hook/use-collaborateurs-search";
+import { useCollaborateursSearch, CollaborateurOption } from "../../app/hooks/use-collaborateurs-search";
 
 interface MultiSelectCollaborateursProps {
   selected: CollaborateurOption[];

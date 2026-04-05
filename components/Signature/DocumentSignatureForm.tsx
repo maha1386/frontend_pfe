@@ -2,7 +2,7 @@
 
 import { useState } from "react";
 import { DocumentSignaturePad } from "./DocumentSignaturePad";
-import { signatureService } from "../../app/service/signature.service"; // ton service
+import { signatureService } from "../../app/services/signature.service"; // ton service
 import { SignDocumentPayload } from "../../app/types/signature.types";
 
 interface Props {

@@ -13,7 +13,7 @@ const authHeaders = () => {
   };
 };
 
-// ─── Types ────────────────────────────────────────────────────────────────────
+//  Types 
 
 export interface CollaborateursResponse {
   data: Collaborateur[];
@@ -68,7 +68,7 @@ export interface CollaborateurDetail {
   role: string;
 }
 
-// ─── GET /api/collaborateurs ──────────────────────────────────────────────────
+//  GET /api/collaborateurs 
 
 export async function getCollaborateurs(
   filters: CollaborateursFilters = {}
@@ -94,7 +94,7 @@ export async function getCollaborateurs(
   };
 }
 
-// ─── GET /api/collaborateurs/:id ─────────────────────────────────────────────
+//  GET /api/collaborateurs/:id 
 
 export async function getCollaborateurById(id: number): Promise<CollaborateurDetail> {
   const res = await fetch(`${API_BASE}/collaborateurs/${id}`, {
@@ -105,7 +105,7 @@ export async function getCollaborateurById(id: number): Promise<CollaborateurDet
   return data.collaborateur;
 }
 
-// ─── GET /api/roles ───────────────────────────────────────────────────────────
+//  GET /api/roles 
 
 export async function getRoles(): Promise<Role[]> {
   const res = await fetch(`${API_BASE}/roles`, { headers: authHeaders() });
@@ -114,7 +114,7 @@ export async function getRoles(): Promise<Role[]> {
   return Array.isArray(data.roles) ? data.roles : [];
 }
 
-// ─── POST /api/collaborateurs ─────────────────────────────────────────────────
+//  POST /api/collaborateurs 
 
 export async function createCollaborateur(
   payload: CreateCollaborateurPayload
@@ -140,7 +140,7 @@ export async function createCollaborateur(
   return data;
 }
 
-// ─── PATCH /api/collaborateurs/:id ───────────────────────────────────────────
+//  PATCH /api/collaborateurs/:id 
 
 export async function updateCollaborateur(
   id: number,
@@ -167,7 +167,7 @@ export async function updateCollaborateur(
   return data.collaborateur;
 }
 
-// ─── PATCH /api/staff/:id/toggle-active ──────────────────────────────────────
+//  PATCH /api/staff/:id/toggle-active 
 
 export async function toggleCollaborateurActive(id: number): Promise<void> {
   const res = await fetch(`${API_BASE}/staff/${id}/toggle-active`, {

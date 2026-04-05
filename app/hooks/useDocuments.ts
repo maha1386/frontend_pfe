@@ -2,7 +2,7 @@
 
 import { useEffect, useState } from "react";
 import { Document, DocumentFilters } from "../types/document.types";
-import { documentService } from "../service/document.service";
+import { documentService } from "../services/document.service";
 
 export function useDocuments() {
   const [documents, setDocuments] = useState<Document[]>([]);

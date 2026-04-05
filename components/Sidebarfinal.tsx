@@ -10,6 +10,7 @@ import {
   Home,
   Mail,
   Shield,
+  UserCircle,
 } from 'lucide-react';
 import Link from 'next/link';
 import { usePathname } from 'next/navigation';
@@ -38,7 +39,7 @@ export function SidebarFinal({ isOpen }: SidebarProps) {
     {
       title: 'PRINCIPAL',
       items: [
-        { icon: Home, label: 'Tableau de bord', href: '/dashboard/document' },
+        { icon: Home, label: 'Tableau de bord', href: '/dashboard' },
         { icon: Users, label: 'Collaborateurs', href: '/dashboard/collaborateur', badge: collabTotal },
         { icon: Shield, label: 'Rôles', href: '/dashboard/roles'},
         { icon: FolderOpen, label: 'Projets', href: '/dashboard/projets', badge: '12' },
@@ -55,6 +56,7 @@ export function SidebarFinal({ isOpen }: SidebarProps) {
     {
       title: 'SYSTÈME',
       items: [
+        { icon: UserCircle, label: 'Mon profil', href: '/dashboard/Profil' },
         { icon: BarChart3, label: 'Rapports', href: '/dashboard/rapports' },
         { icon: Settings, label: 'Paramètres', href: '/dashboard/parametres' },
       ],

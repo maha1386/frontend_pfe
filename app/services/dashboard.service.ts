@@ -7,16 +7,18 @@ const authHeaders = () => ({
   Accept: "application/json",
 });
 
-//  Types 
+// ─── Types ────────────────────────────────────────────────────────────────────
+
 export interface DashboardStats {
   total_collaborateurs: number;
   collaborateurs_actifs: number;
   collaborateurs_inactifs: number;
   documents_en_attente: number;
+  nouveaux_ce_mois: number; // FIX #3 : champ ajouté (dynamique, plus hardcodé)
 }
 
 export interface RepartitionRole {
-  role: string;
+  role: string;  // FIX #4 : toujours en minuscules (normalisé côté Laravel)
   total: number;
 }
 
@@ -28,7 +30,7 @@ export interface NouveauxParMois {
 export interface ActiviteRecente {
   type: "collaborateur" | "document";
   message: string;
-  role: string | null;
+  role: string | null; // FIX #4 : toujours en minuscules (normalisé côté Laravel)
   date: string;
 }
 
@@ -39,11 +41,17 @@ export interface DashboardData {
   activite_recente: ActiviteRecente[];
 }
 
-//  GET /api/dashboard/stats 
+// ─── GET /api/dashboard/stats ─────────────────────────────────────────────────
+
 export async function getDashboardData(): Promise<DashboardData> {
   const res = await fetch(`${API_BASE}/dashboard/stats`, {
     headers: authHeaders(),
   });
-  if (!res.ok) throw new Error(`Erreur ${res.status}`);
+
+  if (!res.ok) {
+    const err = await res.json().catch(() => ({}));
+    throw new Error(err.message ?? `Erreur ${res.status}`);
+  }
+
   return await res.json();
 }

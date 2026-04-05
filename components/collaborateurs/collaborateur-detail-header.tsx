@@ -5,21 +5,18 @@ import { Edit2, PowerOff, ArrowLeft, Mail, Phone, Calendar } from "lucide-react"
 import { useRouter } from "next/navigation";
 import { CollaborateurDetail } from "../../app/services/collaborateur.service";
 import { formatDate } from "../../app/lib/utils";
-
-function getRoleGradient(role: string): string {
-  const hash = role.split("").reduce((acc, char) => acc + char.charCodeAt(0), 0);
-  const hue = hash % 360;
-  return `linear-gradient(135deg, hsl(${hue}, 70%, 55%) 0%, hsl(${hue}, 60%, 40%) 100%)`;
-}
+import { getRoleGradient } from "../../app/lib/role-colors"; // ← import partagé
 
 function getRoleLabel(role: string): string {
   switch (role?.toLowerCase()) {
-    case "manager":           return "Manager";
-    case "rh":                return "Ressources Humaines";
-    case "designer":          return "Designer";
-    case "dev":               return "Développeur";
-    case "new_collaborateur": return "Collaborateur";
-    default:                  return role;
+    case "manager":                return "Manager";
+    case "rh":                     return "Ressources Humaines";
+    case "designer":               return "Designer";
+    case "comptable":              return "Comptable";
+    case "développeur backend":    return "Développeur Backend";
+    case "développeur frontend":   return "Développeur Frontend";
+    case "new_collaborateur":      return "Collaborateur";
+    default:                       return role;
   }
 }
 
@@ -34,8 +31,8 @@ export function CollaborateurDetailHeader({
   onModifier,
   onToggleActive,
 }: CollaborateurDetailHeaderProps) {
-  const router = useRouter();
-  const gradient = getRoleGradient(collaborateur.role);
+  const router   = useRouter();
+  const gradient = getRoleGradient(collaborateur.role); // ← couleur partagée
   const initials = `${collaborateur.first_name.charAt(0)}${collaborateur.last_name.charAt(0)}`.toUpperCase();
 
   return (
@@ -63,7 +60,9 @@ export function CollaborateurDetailHeader({
               >
                 {initials}
               </div>
-              <span className={`absolute -bottom-1 -right-1 w-4 h-4 rounded-full border-2 border-white ${collaborateur.active ? "bg-green-400" : "bg-gray-400"}`} />
+              <span className={`absolute -bottom-1 -right-1 w-4 h-4 rounded-full border-2 border-white ${
+                collaborateur.active ? "bg-green-400" : "bg-gray-400"
+              }`} />
             </div>
 
             {/* Infos */}

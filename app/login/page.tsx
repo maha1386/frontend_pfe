@@ -104,7 +104,7 @@ export default function LoginPage() {
           if (data.force_password_change) {
             setIsPasswordChange(true);
           } else {
-             router.push("/dashboard/collaborateur"); // Redirection vers le dashboard
+             router.push("/dashboard"); // Redirection vers le dashboard
           }
         } else {
           setLoginMessage(data.message || "Email ou mot de passe incorrect");

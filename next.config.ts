@@ -1,8 +1,14 @@
-import type { NextConfig } from "next";
+import type { NextConfig } from 'next';
 
 const nextConfig: NextConfig = {
-  allowedDevOrigins: [
-    'medication-seek-symposium-army.trycloudflare.com',
-    'rand-opt-alias-gratuit.trycloudflare.com',
-  ],
+  async rewrites() {
+    return [
+      {
+        source: '/api/:path*',
+        destination: `${process.env.BACKEND_URL}/api/:path*`,
+      },
+    ];
+  },
 };
+
+export default nextConfig;
