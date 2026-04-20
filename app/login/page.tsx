@@ -129,7 +129,7 @@ export default function LoginPage() {
                     } else if (role === "rh") {
                       window.location.href = "/dashboard/document";
                     } else {
-                      window.location.href = "/dashboard"; 
+                      window.location.href = "/dashboardc/mesdocuments"; 
                     }
                   }
               } else {

@@ -100,10 +100,10 @@ export default function DocumentsPage() {
   };
 
   return (
-    <div className="p-6">
+    <div className="pt-0 px-6 pb-6">
 
       <div className="mb-6">
-        <h1 className="text-2xl font-bold text-gray-900">Documents</h1>
+        <h1 className="text-3xl font-bold text-gray-900">Documents</h1>
         <p className="text-gray-500 text-sm mt-1">Gérez vos documents et fichiers</p>
       </div>
 
@@ -120,10 +120,12 @@ export default function DocumentsPage() {
         onView={handleView}
       />
 
-      <DocumentsPagination
-        pagination={{ ...pagination, total: documents.length, to: documents.length }}
-        onPageChange={() => {}}
-      />
+      <div className="mt-3">
+        <DocumentsPagination
+          pagination={{ ...pagination, total: documents.length, to: documents.length }}
+          onPageChange={() => {}}
+        />
+      </div>
 
       <DocumentCreateModal
         isOpen={createModalOpen}

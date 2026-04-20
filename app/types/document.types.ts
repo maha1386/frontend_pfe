@@ -3,6 +3,8 @@ export interface DocumentAssignment {
   user_fullname: string;
   assigned_by: string;
   status: string;
+  signed_at: string | null;
+  signature_path: string | null;
 }
 
 export interface Document {
@@ -10,6 +12,8 @@ export interface Document {
   namedoc: string;
   path: string;
   signature_req: boolean;
+  assigned_to_name?: string;
+  
   assignments?: DocumentAssignment[];
 }
 
