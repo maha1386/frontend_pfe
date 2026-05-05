@@ -61,6 +61,34 @@ if ($frontendUrl -eq "") {
 }
 Write-Host "Frontend: $frontendUrl" -ForegroundColor Green
 
+# ============================================================
+# ✅ NOUVEAU — Lire AI_SERVICE_URL depuis Google Drive
+# ============================================================
+$aiUrl = ""
+$aiEnvPath = "$env:USERPROFILE\Google Drive\My Drive\data\.env_ai"
+
+# Essaie aussi le chemin alternatif Google Drive Desktop
+if (-not (Test-Path $aiEnvPath)) {
+    $aiEnvPath = "G:\Mon Drive\data\.env_ai"
+}
+if (-not (Test-Path $aiEnvPath)) {
+    $aiEnvPath = "G:\My Drive\data\.env_ai"
+}
+
+if (Test-Path $aiEnvPath) {
+    $aiLine = Get-Content $aiEnvPath | Where-Object { $_ -match "AI_SERVICE_URL" }
+    if ($aiLine) {
+        $aiUrl = $aiLine.Trim()
+        Write-Host "IA (Colab): $aiUrl" -ForegroundColor Cyan
+    } else {
+        Write-Host "Fichier .env_ai trouve mais AI_SERVICE_URL manquant" -ForegroundColor Yellow
+    }
+} else {
+    Write-Host "Fichier .env_ai non trouve dans Drive (Colab pas encore lance ?)" -ForegroundColor Yellow
+    Write-Host "  Chemin cherche : $aiEnvPath" -ForegroundColor DarkGray
+}
+# ============================================================
+
 # Met a jour .env.local
 $env1 = "BACKEND_URL=" + $backendUrl
 $env2 = "NEXT_PUBLIC_API_URL=/api"
@@ -73,6 +101,17 @@ $laravelPath = "C:\xampp\htdocs\Pfe\.env"
 if (Test-Path $laravelPath) {
     $lenv = Get-Content $laravelPath -Raw
     $lenv = $lenv -replace 'FRONTEND_URL=.*', ("FRONTEND_URL=" + $frontendUrl)
+
+    # ✅ NOUVEAU — Met a jour AI_SERVICE_URL dans Laravel .env
+    if ($aiUrl -ne "") {
+        if ($lenv -match "AI_SERVICE_URL=") {
+            $lenv = $lenv -replace 'AI_SERVICE_URL=.*', $aiUrl
+        } else {
+            $lenv = $lenv + "`nAI_SERVICE_URL=" + $aiUrl.Replace("AI_SERVICE_URL=", "")
+        }
+        Write-Host "Laravel .env : AI_SERVICE_URL mis a jour!" -ForegroundColor Cyan
+    }
+
     Set-Content $laravelPath $lenv
     Write-Host "Laravel .env mis a jour!" -ForegroundColor Green
 }
@@ -81,6 +120,7 @@ Write-Host ""
 Write-Host "=== RESUME ===" -ForegroundColor Cyan
 Write-Host "Frontend : $frontendUrl" -ForegroundColor Green
 Write-Host "Backend  : $backendUrl" -ForegroundColor Green
+Write-Host "IA Colab : $(if ($aiUrl) { $aiUrl } else { 'non configure' })" -ForegroundColor Cyan
 Write-Host "QR Code  : $frontendUrl/sign/TOKEN" -ForegroundColor Yellow
 Write-Host ""
 Write-Host "Demarrage Next.js..." -ForegroundColor Yellow

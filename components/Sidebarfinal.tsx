@@ -11,6 +11,7 @@ import {
   Mail,
   Shield,
   UserCircle,
+  ClipboardList,
 } from 'lucide-react';
 import Link from 'next/link';
 import { usePathname } from 'next/navigation';
@@ -51,6 +52,7 @@ export function SidebarFinal({ isOpen }: SidebarProps) {
         { icon: Calendar, label: 'Calendrier', href: '/dashboard/calendrier' },
         { icon: FileText, label: 'Documents', href: '/dashboard/document' },
         { icon: Mail, label: 'Messages', href: '/dashboard/messages', badge: '3' },
+        { icon: ClipboardList, label: 'Onboarding', href: '/dashboard/onboarding' },
       ],
     },
     {
