@@ -26,10 +26,11 @@ export interface ActiviteItem {
   role?: string | null;
   date: string;
 }
+
 export type AlerteItem = {
   type: string;
   label: string;
-  severity: 'high' | 'medium' | 'low';
+  severity: "high" | "medium" | "low";
   user: string;
   detail: string;
 };
@@ -42,19 +43,18 @@ export interface DashboardData {
   alertes_onboarding: AlerteItem[];
 }
 
-async function fetchDashboardData(): Promise<DashboardData> {
+const API_URL = "http://127.0.0.1:8000/api";
+
+async function fetchDashboardManager(): Promise<DashboardData> {
   const token = localStorage.getItem("token");
 
-  const res = await fetch(
-    `${process.env.NEXT_PUBLIC_API_URL}/dashboard/stats`,
-    {
-      headers: {
-        Authorization: `Bearer ${token}`,
-        Accept: "application/json",
-        "Content-Type": "application/json",
-      },
-    }
-  );
+  const res = await fetch(`${API_URL}/dashboard/manager`, {
+    headers: {
+      Authorization: `Bearer ${token}`,
+      Accept: "application/json",
+      "Content-Type": "application/json",
+    },
+  });
 
   if (!res.ok) {
     const err = await res.json().catch(() => ({}));
@@ -64,21 +64,21 @@ async function fetchDashboardData(): Promise<DashboardData> {
   const json = await res.json();
 
   return {
-    stats:             json.stats,
-    repartition_roles: json.repartition_roles,
-    nouveaux_par_mois: json.nouveaux_par_mois,
-    activite_recente:  json.activite_recente,
+    stats:              json.stats,
+    repartition_roles:  json.repartition_roles,
+    nouveaux_par_mois:  json.nouveaux_par_mois,
+    activite_recente:   json.activite_recente,
     alertes_onboarding: json.alertes_onboarding,
   };
 }
 
-export function useDashboard() {
+export function useDashboardManager() {
   const [data, setData]       = useState<DashboardData | null>(null);
   const [loading, setLoading] = useState(true);
   const [error, setError]     = useState<string | null>(null);
 
   useEffect(() => {
-    fetchDashboardData()
+    fetchDashboardManager()
       .then(setData)
       .catch((e) => setError(e instanceof Error ? e.message : "Erreur inconnue"))
       .finally(() => setLoading(false));

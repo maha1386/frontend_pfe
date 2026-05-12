@@ -4,7 +4,7 @@ import { useState } from "react";
 import { useParams, useRouter } from "next/navigation";
 import {
   ArrowLeft, CheckCircle2, Clock, AlertCircle,
-  ChevronDown, ChevronUp, Pencil, Trash2, Plus
+  ChevronDown, ChevronUp, Pencil, Trash2,
 } from "lucide-react";
 import { useOnboarding } from "../../../hooks/onboarding/useOnboarding2";
 import { Task, TaskStatus, TaskType } from "../../../types/onboarding";
@@ -23,9 +23,17 @@ const STATUS_CLASS: Record<TaskStatus, string> = {
 };
 
 const TYPE_CLASS: Record<TaskType, string> = {
-  technique:      "bg-purple-100 text-purple-700",
-  administratif:  "bg-amber-100 text-amber-700",
-  humain:         "bg-pink-100 text-pink-700",
+  technique:     "bg-purple-100 text-purple-700",
+  administratif: "bg-amber-100 text-amber-700",
+  humain:        "bg-pink-100 text-pink-700",
+  formation:     "bg-indigo-100 text-indigo-700",
+};
+
+const TYPE_LABEL: Record<TaskType, string> = {
+  technique:     "Technique",
+  administratif: "Administratif",
+  humain:        "Humain",
+  formation:     "Formation",
 };
 
 // ── EditTaskModal ─────────────────────────────────────────
@@ -100,6 +108,7 @@ function EditTaskModal({
                 <option value="technique">Technique</option>
                 <option value="administratif">Administratif</option>
                 <option value="humain">Humain</option>
+                <option value="formation">Formation</option>
               </select>
             </div>
           </div>
@@ -128,7 +137,7 @@ function EditTaskModal({
           <button
             onClick={handleSave}
             disabled={saving}
-            className="flex-1 px-4 py-2 bg-blue-600 text-white rounded-xl text-sm font-medium hover:bg-blue-700 disabled:opacity-50"
+            className="btn-confirmer flex-1 disabled:opacity-50"
           >
             {saving ? "Enregistrement..." : "Enregistrer"}
           </button>
@@ -172,7 +181,7 @@ function TaskCard({
             {STATUS_LABEL[task.status]}
           </span>
           <span className={`text-xs px-2 py-0.5 rounded-full font-medium ${TYPE_CLASS[task.type]}`}>
-            {task.type}
+            {TYPE_LABEL[task.type]}
           </span>
           {task.deadline && (
             <span className="text-xs text-gray-400">
@@ -262,9 +271,9 @@ export default function OnboardingDetailPage() {
     valider, updateTask, deleteTask,
   } = useOnboarding(Number(id));
 
-  const [editTask, setEditTask]         = useState<Task | null>(null);
-  const [validating, setValidating]     = useState(false);
-  const [validNotes, setValidNotes]     = useState("");
+  const [editTask, setEditTask]             = useState<Task | null>(null);
+  const [validating, setValidating]         = useState(false);
+  const [validNotes, setValidNotes]         = useState("");
   const [showValidModal, setShowValidModal] = useState(false);
   const [expandedMonths, setExpandedMonths] = useState<Record<number, boolean>>({ 1: true });
 
@@ -305,6 +314,9 @@ export default function OnboardingDetailPage() {
       setValidating(true);
       await valider(validNotes);
       setShowValidModal(false);
+    } catch (err) {
+      console.error("Erreur validation:", err);
+      alert("Erreur: " + (err instanceof Error ? err.message : "inconnue"));
     } finally {
       setValidating(false);
     }
@@ -314,7 +326,7 @@ export default function OnboardingDetailPage() {
     <div className="space-y-6">
 
       {/* ── Header ── */}
-      <div className="flex items-start justify-between">
+      <div className="space-y-3">
         <div className="flex items-center gap-3">
           <button
             onClick={() => router.back()}
@@ -331,24 +343,20 @@ export default function OnboardingDetailPage() {
         </div>
 
         <div className="flex items-center gap-3">
-          {/* Statut global */}
-          <span
-            className={`px-3 py-1.5 rounded-full text-xs font-medium ${
-              onboarding.status === "valide"
-                ? "bg-green-100 text-green-700"
-                : "bg-amber-100 text-amber-700"
-            }`}
-          >
+          <span className={`px-3 py-1.5 rounded-full text-xs font-medium ${
+            onboarding.status === "valide"
+              ? "bg-green-100 text-green-700"
+              : "bg-amber-100 text-amber-700"
+          }`}>
             {onboarding.status === "valide" ? "✓ Validé" : "En attente de validation"}
           </span>
 
-          {/* Bouton valider */}
           {onboarding.status !== "valide" && (
             <button
               onClick={() => setShowValidModal(true)}
-              className="px-4 py-2 bg-green-600 text-white rounded-xl text-sm font-medium hover:bg-green-700 transition-colors"
+              className="btn-valider"
             >
-              Valider l'onboarding
+              ✓ Valider l'onboarding
             </button>
           )}
         </div>
@@ -381,14 +389,13 @@ export default function OnboardingDetailPage() {
         {Object.entries(grouped)
           .sort(([a], [b]) => Number(a) - Number(b))
           .map(([monthStr, weeks]) => {
-            const month = Number(monthStr);
+            const month    = Number(monthStr);
             const allTasks = Object.values(weeks).flat();
-            const done = allTasks.filter((t) => t.status === "termine").length;
-            const isOpen = expandedMonths[month] ?? false;
+            const done     = allTasks.filter((t) => t.status === "termine").length;
+            const isOpen   = expandedMonths[month] ?? false;
 
             return (
               <div key={month} className="bg-white rounded-2xl border border-gray-100 overflow-hidden">
-                {/* Header mois */}
                 <button
                   onClick={() => toggleMonth(month)}
                   className="w-full flex items-center justify-between px-5 py-4 hover:bg-gray-50 transition-colors"
@@ -411,15 +418,13 @@ export default function OnboardingDetailPage() {
                         style={{ width: `${allTasks.length ? (done / allTasks.length) * 100 : 0}%` }}
                       />
                     </div>
-                    {isOpen ? (
-                      <ChevronUp className="w-4 h-4 text-gray-400" />
-                    ) : (
-                      <ChevronDown className="w-4 h-4 text-gray-400" />
-                    )}
+                    {isOpen
+                      ? <ChevronUp className="w-4 h-4 text-gray-400" />
+                      : <ChevronDown className="w-4 h-4 text-gray-400" />
+                    }
                   </div>
                 </button>
 
-                {/* Semaines */}
                 {isOpen && (
                   <div className="px-5 pb-5 space-y-3">
                     {Object.entries(weeks)
@@ -451,19 +456,15 @@ export default function OnboardingDetailPage() {
 
       {/* ── Modal validation ── */}
       {showValidModal && (
-        <div className="fixed inset-0 z-50 flex items-center justify-center bg-black/40">
-          <div className="bg-white rounded-2xl shadow-xl w-full max-w-md p-6 space-y-4">
-            <h2 className="text-lg font-semibold text-gray-800">
-              Valider l'onboarding
-            </h2>
+        <div className="fixed inset-0 z-50 flex items-center justify-center bg-black/40 p-4">
+          <div className="bg-white rounded-2xl shadow-xl w-full max-w-md p-6 space-y-4 max-h-[90vh] overflow-y-auto">
+            <h2 className="text-lg font-semibold text-gray-800">Valider l'onboarding</h2>
             <p className="text-sm text-gray-500">
               Confirmez-vous la validation du plan d'intégration de{" "}
               <strong>{onboarding.user.first_name} {onboarding.user.last_name}</strong> ?
             </p>
             <div>
-              <label className="text-xs font-medium text-gray-500">
-                Notes (optionnel)
-              </label>
+              <label className="text-xs font-medium text-gray-500">Notes (optionnel)</label>
               <textarea
                 value={validNotes}
                 onChange={(e) => setValidNotes(e.target.value)}
@@ -472,17 +473,17 @@ export default function OnboardingDetailPage() {
                 className="mt-1 w-full px-3 py-2 border border-gray-200 rounded-xl text-sm focus:outline-none focus:ring-2 focus:ring-green-500 resize-none"
               />
             </div>
-            <div className="flex gap-2 pt-1">
+            <div className="grid grid-cols-2 gap-3 pt-1">
               <button
                 onClick={() => setShowValidModal(false)}
-                className="flex-1 px-4 py-2 border border-gray-200 rounded-xl text-sm text-gray-600 hover:bg-gray-50"
+                className="px-4 py-2 border border-gray-200 rounded-xl text-sm text-gray-600 hover:bg-gray-50"
               >
                 Annuler
               </button>
               <button
                 onClick={handleValider}
                 disabled={validating}
-                className="flex-1 px-4 py-2 bg-green-600 text-white rounded-xl text-sm font-medium hover:bg-green-700 disabled:opacity-50"
+                className="btn-confirmer disabled:opacity-50"
               >
                 {validating ? "Validation..." : "Confirmer"}
               </button>

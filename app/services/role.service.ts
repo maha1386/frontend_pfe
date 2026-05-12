@@ -29,7 +29,7 @@ export interface UpdateRolePayload {
 // GET /api/roles 
 
 export async function getRoles(): Promise<Role[]> {
-  const res = await fetch(`${API_BASE}/roles`, { headers: authHeaders() });
+  const res = await fetch(`${API_BASE}/collaborateurs/roles`, { headers: authHeaders() });
   if (!res.ok) throw new Error(`Erreur ${res.status} : impossible de récupérer les rôles`);
   const data = await res.json();
   return Array.isArray(data.roles) ? data.roles : [];
@@ -38,7 +38,7 @@ export async function getRoles(): Promise<Role[]> {
 // POST /api/roles 
 
 export async function createRole(payload: CreateRolePayload): Promise<Role> {
-  const res = await fetch(`${API_BASE}/roles`, {
+  const res = await fetch(`${API_BASE}/collaborateurs/roles`, {
     method: "POST",
     headers: authHeaders(),
     body: JSON.stringify(payload),
@@ -63,7 +63,7 @@ export async function createRole(payload: CreateRolePayload): Promise<Role> {
 //  PATCH /api/roles/role/:id 
 
 export async function updateRole(id: number, payload: UpdateRolePayload): Promise<Role> {
-  const res = await fetch(`${API_BASE}/roles/role/${id}`, {
+  const res = await fetch(`${API_BASE}/collaborateurs/roles/${id}`, {
     method: "PATCH",
     headers: authHeaders(),
     body: JSON.stringify(payload),
@@ -80,7 +80,7 @@ export async function updateRole(id: number, payload: UpdateRolePayload): Promis
 // DELETE /api/roles/:id
 
 export async function deleteRole(id: number): Promise<void> {
-  const res = await fetch(`${API_BASE}/roles/${id}`, {
+  const res = await fetch(`${API_BASE}/collaborateurs/roles/${id}`, {
     method: "DELETE",
     headers: authHeaders(),
   });

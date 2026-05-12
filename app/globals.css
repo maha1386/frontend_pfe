@@ -178,4 +178,21 @@
     font-weight: var(--font-weight-normal);
     line-height: 1.5;
   }
+  .btn-confirmer {
+  background-color: #16a34a !important;
+  color: #ffffff !important;
+  padding: 8px 16px;
+  border-radius: 12px;
+  font-size: 14px;
+  font-weight: 500;
+  flex: 1;
+}
+
+.btn-confirmer:hover {
+  background-color: #15803d !important;
+}
+
+.btn-confirmer:disabled {
+  opacity: 0.5;
+}
 }

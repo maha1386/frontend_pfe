@@ -51,7 +51,7 @@ export function SidebarFinal({ isOpen }: SidebarProps) {
       items: [
         { icon: Calendar, label: 'Calendrier', href: '/dashboard/calendrier' },
         { icon: FileText, label: 'Documents', href: '/dashboard/document' },
-        { icon: Mail, label: 'Messages', href: '/dashboard/messages', badge: '3' },
+        { icon: Mail, label: 'Messages', href: '/dashboard/messages' },
         { icon: ClipboardList, label: 'Onboarding', href: '/dashboard/onboarding' },
       ],
     },

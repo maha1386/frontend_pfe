@@ -1,6 +1,7 @@
 // services/signature.service.ts
+import type { DocumentSignature } from "../types/signature.types";
 
-const API_BASE = process.env.NEXT_PUBLIC_API_URL ?? "http://localhost:8000/api";
+const API_BASE = process.env.NEXT_PUBLIC_API_URL ?? "/api";
 
 const authHeaders = () => ({
   Authorization: `Bearer ${localStorage.getItem("token")}`,
@@ -20,7 +21,7 @@ export interface TokenResponse {
   url: string;
 }
 
-// ─── Générer token QR (collaborateur connecté) ────────────────────────────────
+// ─── Générer token QR ─────────────────────────────────────────────────────────
 
 export async function genererToken(): Promise<TokenResponse> {
   const res = await fetch(`${API_BASE}/signature/token`, {
@@ -63,6 +64,17 @@ export async function getSignatureStatus(): Promise<SignatureStatus> {
   return await res.json();
 }
 
+// ─── Toutes les signatures documents ─────────────────────────────────────────
+
+export async function getAllSignatures(): Promise<DocumentSignature[]> {
+  const res = await fetch(`${API_BASE}/documents/signatures`, {
+    headers: authHeaders(),
+  });
+  if (!res.ok) throw new Error(`Erreur ${res.status}`);
+  const data = await res.json();
+  return data.data ?? data;
+}
+
 // ─── Signer un document ───────────────────────────────────────────────────────
 
 export async function signerDocument(documentId: number) {
@@ -76,3 +88,14 @@ export async function signerDocument(documentId: number) {
   }
   return await res.json();
 }
+
+// ─── Export objet (compatibilité hooks) ──────────────────────────────────────
+
+export const signatureService = {
+  getAll:              getAllSignatures,
+  getStatus:           getSignatureStatus,
+  genererToken,
+  verifierToken,
+  enregistrerSignature,
+  signerDocument,
+};

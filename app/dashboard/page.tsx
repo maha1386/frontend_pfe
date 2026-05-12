@@ -6,13 +6,13 @@ import {
   Plus, Upload, Bell, ChevronRight, AlertTriangle,
   BarChart2, Zap, Activity, Loader2,
 } from "lucide-react";
-import { useDashboard } from "../hooks/dashboard/use-dashboard";
+import { useDashboardRH } from "../hooks/dashboard/useDashboardrh";
 import type {
   RepartitionRole,
   NouveauxParMois,
   ActiviteItem,
   AlerteItem,
-} from "../hooks/dashboard/use-dashboard";
+} from "../hooks/dashboard/useDashboardrh";
 import { getRoleBadgeClass } from "../lib/role-colors";
 import { getRoleHex } from "../lib/role-colors";
 
@@ -328,7 +328,7 @@ function DonutChart({ pct }: { pct: number }) {
 // ─── Page ─────────────────────────────────────────────────────────────────────
 
 export default function DashboardPage() {
-  const { data, loading, error } = useDashboard();
+  const { data, loading, error } = useDashboardRH();
   const router = useRouter();
 
   if (loading) {

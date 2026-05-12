@@ -1,22 +1,42 @@
 "use client";
 
+import { useCallback, useEffect, useRef } from "react";
+import { useSearchParams } from "next/navigation";
 import { IntegrationPlanComponent } from "../../../components/Integration/Integration";
-import { useMyIntegrationPlan } from "../../hook/useMyIntegrationPlan";
+import { useMyIntegrationPlan } from "../../hooks/useMyIntegrationPlan";
 
 export default function IntegrationPlanPage() {
-  const { plan, loading, error } = useMyIntegrationPlan();
+  const { plan, loading, error, refetch } = useMyIntegrationPlan();
+  const searchParams = useSearchParams();
+  const taskId = searchParams.get("taskId")
+    ? Number(searchParams.get("taskId"))
+    : null;
 
-  if (loading) {
-    return <p className="text-center mt-10">Chargement du plan d'intégration...</p>;
-  }
+  const handleRefresh = useCallback(() => refetch(), [refetch]);
 
-  if (error) {
-    return <p className="text-center mt-10 text-red-600">Erreur : {error}</p>;
-  }
+  if (loading) return (
+    <div style={{ textAlign: "center", marginTop: 60, color: "#6b7280" }}>
+      Chargement du plan d'intégration...
+    </div>
+  );
 
-  if (!plan) {
-    return <p className="text-center mt-10">Aucun plan d'intégration disponible</p>;
-  }
+  if (error) return (
+    <div style={{ textAlign: "center", marginTop: 60, color: "#dc2626" }}>
+      Erreur : {error}
+    </div>
+  );
 
-  return <IntegrationPlanComponent plan={plan} />;
+  if (!plan) return (
+    <div style={{ textAlign: "center", marginTop: 60, color: "#6b7280" }}>
+      Aucun plan d'intégration disponible.
+    </div>
+  );
+
+  return (
+    <IntegrationPlanComponent
+      plan={plan}
+      onRefresh={handleRefresh}
+      highlightTaskId={taskId}
+    />
+  );
 }

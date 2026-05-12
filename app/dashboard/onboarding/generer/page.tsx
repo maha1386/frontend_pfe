@@ -70,6 +70,10 @@ export default function GenererPage() {
       setLoading(true);
       setError(null);
 
+      // ✅ AbortController avec 25 minutes de timeout
+      const controller = new AbortController();
+      const timeoutId = setTimeout(() => controller.abort(), 25 * 60 * 1000);
+
       const res = await fetch(
         `${process.env.NEXT_PUBLIC_API_URL}/onboarding/user/${selectedUser.id}/generer`,
         {
@@ -84,8 +88,11 @@ export default function GenererPage() {
             description,
             months_count: monthsCount,
           }),
+          signal: controller.signal,  // ✅ signal ajouté
         }
       );
+
+      clearTimeout(timeoutId);  // ✅ annuler le timeout si succès
 
       if (!res.ok) {
         const err = await res.json();
@@ -94,13 +101,17 @@ export default function GenererPage() {
 
       const data = await res.json();
       router.push(`/dashboard/onboarding/${data.onboarding.id}`);
+
     } catch (err: unknown) {
-      setError(err instanceof Error ? err.message : "Erreur inconnue");
+      if (err instanceof Error && err.name === "AbortError") {
+        setError("La génération a pris trop de temps. Vérifiez l'onboarding dans la liste.");
+      } else {
+        setError(err instanceof Error ? err.message : "Erreur inconnue");
+      }
     } finally {
       setLoading(false);
     }
   };
-
   return (
     <div className="space-y-6 max-w-2xl">
 

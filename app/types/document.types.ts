@@ -3,6 +3,8 @@ export interface DocumentAssignment {
   user_fullname: string;
   assigned_by: string;
   status: string;
+  signed_at?: string | null;
+  signed_pdf_path?: string | null;
 }
 
 export interface Document {

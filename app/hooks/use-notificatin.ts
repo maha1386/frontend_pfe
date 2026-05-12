@@ -11,9 +11,9 @@ import {
 
 export function useNotifications() {
   const [notifications, setNotifications] = useState<Notification[]>([]);
-  const [unreadCount, setUnreadCount] = useState(0);
-  const [loading, setLoading] = useState(true);
-  const [error, setError] = useState<string | null>(null);
+  const [unreadCount, setUnreadCount]     = useState(0);
+  const [loading, setLoading]             = useState(true);
+  const [error, setError]                 = useState<string | null>(null);
 
   const fetchNotifications = useCallback(async () => {
     try {
@@ -27,14 +27,14 @@ export function useNotifications() {
     }
   }, []);
 
-  // Poll toutes les 30 secondes
   useEffect(() => {
     fetchNotifications();
     const interval = setInterval(fetchNotifications, 30000);
     return () => clearInterval(interval);
   }, [fetchNotifications]);
 
-  const handleMarquerLue = async (id: number) => {
+  const handleMarquerLue = async (id: number | string) => {
+
     try {
       await marquerCommeLue(id);
       setNotifications((prev) =>
@@ -56,7 +56,7 @@ export function useNotifications() {
     }
   };
 
-  const handleSupprimer = async (id: number) => {
+  const handleSupprimer = async (id: string) => {
     try {
       await supprimerNotification(id);
       const deleted = notifications.find((n) => n.id === id);

@@ -57,15 +57,15 @@ export function RoleModal({ isOpen, roleToEdit, onClose, onSuccess }: RoleModalP
 
   // Pré-remplir si modification
   useEffect(() => {
-    if (roleToEdit) {
-      editHook.handleChange(roleToEdit.name);
-      createHook.reset();
-    } else {
-      createHook.reset();
-      editHook.reset();
-    }
-  }, [roleToEdit, isOpen]);
-
+  if (!isOpen) return;
+  if (roleToEdit) {
+    editHook.handleChange(roleToEdit.name);
+    createHook.reset();
+  } else {
+    editHook.reset();
+    createHook.reset();
+  }
+}, [isOpen, roleToEdit?.id]);
   if (!isOpen) return null;
 
   const handleClose = () => {

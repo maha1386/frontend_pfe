@@ -2,7 +2,7 @@
 
     import { useState, useEffect, useCallback } from "react"
     import { RH } from "../types/rh.types"
-    import { rhService } from "../service/rh.service"
+    import { rhService } from "../services/rh.service"
 
     export function useRhs() {
     const [rhs, setRhs] = useState<RH[]>([])

@@ -6,6 +6,40 @@ if (Test-Path "backend-out.log")  { Remove-Item "backend-out.log" }
 if (Test-Path "backend-err.log")  { Remove-Item "backend-err.log" }
 if (Test-Path "frontend-out.log") { Remove-Item "frontend-out.log" }
 if (Test-Path "frontend-err.log") { Remove-Item "frontend-err.log" }
+if (Test-Path "flask-out.log")    { Remove-Item "flask-out.log" }
+if (Test-Path "flask-err.log")    { Remove-Item "flask-err.log" }
+
+# ============================================================
+# ✅ Lance Flask CV API
+# ============================================================
+Write-Host "Lance Flask CV API..." -ForegroundColor Yellow
+$flaskDir = 'C:\Users\bourb\OneDrive\Bureau\modelextraction\main'
+Start-Process "python" `
+    -ArgumentList "app.py" `
+    -WorkingDirectory $flaskDir `
+    -RedirectStandardOutput "flask-out.log" `
+    -RedirectStandardError "flask-err.log" `
+    -NoNewWindow
+
+Write-Host "Attente Flask..."
+$flaskReady = $false
+$elapsed = 0
+while (-not $flaskReady -and $elapsed -lt 60) {
+    Start-Sleep -Seconds 2
+    $elapsed += 2
+    Write-Host "  ... $elapsed s"
+    try {
+        $r = Invoke-WebRequest -Uri "http://127.0.0.1:5000/health" -TimeoutSec 2 -ErrorAction SilentlyContinue
+        if ($r.StatusCode -eq 200) { $flaskReady = $true }
+    } catch {}
+}
+
+if ($flaskReady) {
+    Write-Host "Flask CV API prete -> http://127.0.0.1:5000" -ForegroundColor Green
+} else {
+    Write-Host "Flask pas encore prete (modeles lents, continue quand meme)" -ForegroundColor Yellow
+}
+# ============================================================
 
 Write-Host "Lance tunnel backend..." -ForegroundColor Yellow
 Start-Process $cf -ArgumentList "tunnel --url http://localhost:8000" -RedirectStandardOutput "backend-out.log" -RedirectStandardError "backend-err.log" -NoNewWindow
@@ -62,18 +96,12 @@ if ($frontendUrl -eq "") {
 Write-Host "Frontend: $frontendUrl" -ForegroundColor Green
 
 # ============================================================
-# ✅ NOUVEAU — Lire AI_SERVICE_URL depuis Google Drive
+# Lire AI_SERVICE_URL depuis Google Drive
 # ============================================================
 $aiUrl = ""
 $aiEnvPath = "$env:USERPROFILE\Google Drive\My Drive\data\.env_ai"
-
-# Essaie aussi le chemin alternatif Google Drive Desktop
-if (-not (Test-Path $aiEnvPath)) {
-    $aiEnvPath = "G:\Mon Drive\data\.env_ai"
-}
-if (-not (Test-Path $aiEnvPath)) {
-    $aiEnvPath = "G:\My Drive\data\.env_ai"
-}
+if (-not (Test-Path $aiEnvPath)) { $aiEnvPath = "G:\Mon Drive\data\.env_ai" }
+if (-not (Test-Path $aiEnvPath)) { $aiEnvPath = "G:\My Drive\data\.env_ai" }
 
 if (Test-Path $aiEnvPath) {
     $aiLine = Get-Content $aiEnvPath | Where-Object { $_ -match "AI_SERVICE_URL" }
@@ -102,7 +130,6 @@ if (Test-Path $laravelPath) {
     $lenv = Get-Content $laravelPath -Raw
     $lenv = $lenv -replace 'FRONTEND_URL=.*', ("FRONTEND_URL=" + $frontendUrl)
 
-    # ✅ NOUVEAU — Met a jour AI_SERVICE_URL dans Laravel .env
     if ($aiUrl -ne "") {
         if ($lenv -match "AI_SERVICE_URL=") {
             $lenv = $lenv -replace 'AI_SERVICE_URL=.*', $aiUrl
@@ -120,6 +147,7 @@ Write-Host ""
 Write-Host "=== RESUME ===" -ForegroundColor Cyan
 Write-Host "Frontend : $frontendUrl" -ForegroundColor Green
 Write-Host "Backend  : $backendUrl" -ForegroundColor Green
+Write-Host "Flask    : http://127.0.0.1:5000" -ForegroundColor Magenta
 Write-Host "IA Colab : $(if ($aiUrl) { $aiUrl } else { 'non configure' })" -ForegroundColor Cyan
 Write-Host "QR Code  : $frontendUrl/sign/TOKEN" -ForegroundColor Yellow
 Write-Host ""

@@ -23,7 +23,7 @@ export function DocumentsStats({ documents }: DocumentsStatsProps) {
   ).length;
 
   return (
-    <div className="grid grid-cols-2 md:grid-cols-4 gap-4 mb-4">
+    <div className="grid grid-cols-4 gap-4 mb-4">
       <div className="bg-white p-4 rounded-lg border border-slate-200 text-left">
         <p className="text-sm text-slate-600 font-medium">Total documents</p>
         <p className="text-2xl font-semibold text-slate-900">{total}</p>

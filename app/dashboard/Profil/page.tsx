@@ -464,7 +464,7 @@ export default function ProfilPage() {
                     Aperçu
                   </p>
                   <img
-                    src={`${process.env.NEXT_PUBLIC_API_URL?.replace("/api", "")}/storage/${profil.signature_path}`}
+                    src={`http://localhost:8000/storage/${profil.signature_path}`}
                     alt="signature"
                     className="max-h-16 object-contain"
                   />

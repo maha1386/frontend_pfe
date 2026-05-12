@@ -4,8 +4,8 @@ import { useState } from "react";
 import { MesDocumentsToolbar } from "../../../components/MesDocuments/MesDocumentsToolbar";
 import { MesDocumentsTable } from "../../../components/MesDocuments/MesDocumentsTable";
 import { DocumentsPagination } from "../../../components/Document/DocumentsPagination";
-import { useMesDocuments } from "../../../app/hook/useMesDocuments";
-import { documentService } from "@/app/service/document.service";
+import { useMesDocuments } from "../../hooks/useMesDocuments";
+import { documentService } from "@/app/services/document.service";
 import { DocumentsStats } from "../../../components/MesDocuments/DocumentsStats";
 import { Document } from "../../../app/types/document.types";
 
@@ -19,19 +19,16 @@ export default function MesDocumentsPage() {
   const [pdfName, setPdfName] = useState("");
   const [pdfLoading, setPdfLoading] = useState(false);
 
-  // États pour filtre et tri
   const [filterStatus, setFilterStatus] = useState<string | null>(null);
   const [sortDirection, setSortDirection] = useState<"asc" | "desc">("desc");
 
-  // 🔹 Helpers
   function getDocumentStatus(doc: Document) {
     if (!doc.signature_req) return "À lire";
-    const allSigned = doc.assignments?.every(a => a.status === "signed");
-    if (allSigned) return "Signé";
+    const hasSigned = doc.assignments?.some(a => a.status === "signed");
+    if (hasSigned) return "Signé";
     return "En cours";
-  }
+} 
 
-  // 🔹 Filtrer et trier
   const filteredAndSortedDocuments = allDocuments
     .filter((doc: Document) => {
       const matchesSearch = doc.namedoc.toLowerCase().includes((filters.namedoc || "").toLowerCase());
@@ -53,13 +50,17 @@ export default function MesDocumentsPage() {
   const endIndex = startIndex + pageSize;
   const paginatedDocuments = filteredAndSortedDocuments.slice(startIndex, endIndex);
 
-  // 🔹 Handlers
   const handleView = async (doc: Document) => {
     setPdfLoading(true);
     setPdfName(doc.namedoc);
     try {
-      const url = await documentService.viewDocument(doc.id);
-      setPdfUrl(url);
+      const signedPdf = doc.assignments?.find(a => a.status === "signed")?.signed_pdf_path;
+      if (signedPdf) {
+        setPdfUrl(`http://localhost:8000${signedPdf}`);
+      } else {
+        const url = await documentService.viewDocument(doc.id);
+        setPdfUrl(url);
+      }
     } catch (err) {
       alert("Erreur chargement PDF");
     } finally {
@@ -74,22 +75,24 @@ export default function MesDocumentsPage() {
 
   const handleSign = async (doc: Document) => {
     try {
-      alert(`Document ${doc.namedoc} signé !`);
+      await documentService.signerDocument(doc.id);
+      alert(`Document "${doc.namedoc}" signé avec succès !`);
       await refresh();
-    } catch (err) {
+    } catch (err: any) {
+      alert(err.message || "Erreur lors de la signature");
       console.error("Erreur signature document :", err);
     }
   };
 
   return (
     <div className="p-6">
-        <div className="mb-6">
-          <h1 className="text-2xl font-bold text-gray-900">Mes Documents</h1>
-          <p className="text-gray-500 text-sm mt-1">
-            Ici vous pouvez consulter, filtrer et signer vos documents assignés.
-          </p>
-        </div>
-      {/* 📊 Espacement uniforme avec space-y-8 */}
+      <div className="mb-6">
+        <h1 className="text-2xl font-bold text-gray-900">Mes Documents</h1>
+        <p className="text-gray-500 text-sm mt-1">
+          Ici vous pouvez consulter, filtrer et signer vos documents assignés.
+        </p>
+      </div>
+
       <div className="space-y-8">
 
         <DocumentsStats documents={allDocuments} />
@@ -112,8 +115,7 @@ export default function MesDocumentsPage() {
         {error && <p className="text-red-500 mb-4">{error}</p>}
         {loading && <p className="text-gray-500 mb-4">Chargement des documents...</p>}
 
-        {/* Conteneur pour tableau + pagination */}
-        <div className="space-y-2"> {/* <-- réduit l'espace vertical ici */}
+        <div className="space-y-2">
           <MesDocumentsTable
             documents={paginatedDocuments}
             onView={handleView}
@@ -136,12 +138,11 @@ export default function MesDocumentsPage() {
 
       </div>
 
-      {/*  MODAL PDF */}
+      {/* MODAL PDF */}
       {(pdfUrl || pdfLoading) && (
         <div className="fixed inset-0 z-50 flex items-center justify-center bg-black/60">
           <div className="bg-white rounded-lg shadow-xl w-[90vw] h-[90vh] flex flex-col">
 
-            {/* Header */}
             <div className="flex items-center justify-between px-4 py-3 border-b">
               <h2 className="font-semibold text-lg truncate">{pdfName}</h2>
               <button
@@ -152,7 +153,6 @@ export default function MesDocumentsPage() {
               </button>
             </div>
 
-            {/* Content */}
             <div className="flex-1 w-full">
               {pdfLoading ? (
                 <div className="flex items-center justify-center h-full text-gray-500">

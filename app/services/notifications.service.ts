@@ -1,4 +1,4 @@
-// services/notification.service.ts
+// services/notifications.service.ts
 
 const API_BASE = process.env.NEXT_PUBLIC_API_URL ?? "http://localhost:8000/api";
 
@@ -10,14 +10,14 @@ const authHeaders = () => {
     "Content-Type": "application/json",
   };
 };
-//  Types 
+
+// ─── Types ────────────────────────────────────────────────────────────────────
 
 export interface Notification {
-  id: number;
-  user_id: number;
+  id: string; // UUID avec Laravel standard
+  type: string;
   title: string;
   message: string;
-  type: "mail" | "task";
   is_read: boolean;
   created_at: string;
 }
@@ -27,23 +27,21 @@ export interface NotificationsResponse {
   unread_count: number;
 }
 
-//  GET /api/notifications 
+// ─── GET /api/notifications ───────────────────────────────────────────────────
 
 export async function getNotifications(): Promise<NotificationsResponse> {
-  const res = await fetch(`${API_BASE}/notifications`, {
-    headers: authHeaders(),
-  });
+  const res = await fetch(`${API_BASE}/notifications`, { headers: authHeaders() });
   if (!res.ok) throw new Error(`Erreur ${res.status}`);
   const data = await res.json();
   return {
     notifications: data.notifications,
-    unread_count: data.unread_count,
+    unread_count:  data.unread_count,
   };
 }
 
-//  PATCH /api/notifications/:id/read 
+// ─── PATCH /api/notifications/:id/read ───────────────────────────────────────
 
-export async function marquerCommeLue(id: number): Promise<void> {
+export async function marquerCommeLue(id: number | string): Promise<void> {
   const res = await fetch(`${API_BASE}/notifications/${id}/read`, {
     method: "PATCH",
     headers: authHeaders(),
@@ -51,7 +49,7 @@ export async function marquerCommeLue(id: number): Promise<void> {
   if (!res.ok) throw new Error(`Erreur ${res.status}`);
 }
 
-//  PATCH /api/notifications/read-all 
+// ─── PATCH /api/notifications/read-all ───────────────────────────────────────
 
 export async function marquerToutesCommeLues(): Promise<void> {
   const res = await fetch(`${API_BASE}/notifications/read-all`, {
@@ -61,9 +59,9 @@ export async function marquerToutesCommeLues(): Promise<void> {
   if (!res.ok) throw new Error(`Erreur ${res.status}`);
 }
 
-//  DELETE /api/notifications/:id ─
+// ─── DELETE /api/notifications/:id ───────────────────────────────────────────
 
-export async function supprimerNotification(id: number): Promise<void> {
+export async function supprimerNotification(id: number | string): Promise<void> {
   const res = await fetch(`${API_BASE}/notifications/${id}`, {
     method: "DELETE",
     headers: authHeaders(),

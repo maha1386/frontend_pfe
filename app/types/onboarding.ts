@@ -1,5 +1,5 @@
 export type TaskStatus = 'en_attente' | 'en_cours' | 'termine';
-export type TaskType   = 'technique' | 'administratif' | 'humain';
+export type TaskType = "technique" | "administratif" | "humain" | "formation";
 export type OnboardingStatus = 'genere' | 'valide';
 
 export interface Task {

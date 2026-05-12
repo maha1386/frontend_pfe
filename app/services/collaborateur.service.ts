@@ -108,7 +108,7 @@ export async function getCollaborateurById(id: number): Promise<CollaborateurDet
 //  GET /api/roles 
 
 export async function getRoles(): Promise<Role[]> {
-  const res = await fetch(`${API_BASE}/roles`, { headers: authHeaders() });
+  const res = await fetch(`${API_BASE}/collaborateurs/roles`, { headers: authHeaders() });
   if (!res.ok) throw new Error(`Erreur ${res.status} : impossible de récupérer les rôles`);
   const data = await res.json();
   return Array.isArray(data.roles) ? data.roles : [];

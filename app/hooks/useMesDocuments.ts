@@ -2,7 +2,7 @@
 
 import { useState, useEffect, useCallback } from "react";
 import { Document, DocumentFilters } from "../types/document.types";
-import { documentService } from "../service/document.service";
+import { documentService } from "../services/document.service";
 
 export function useMesDocuments(initialFilters?: DocumentFilters) {
   const [documents, setDocuments] = useState<Document[]>([]);

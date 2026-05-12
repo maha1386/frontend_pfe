@@ -7,6 +7,7 @@ import {
   Settings,
   CalendarCheck,
   BookOpen,
+  ClipboardList,
 } from "lucide-react";
 import Link from "next/link";
 import { usePathname } from "next/navigation";
@@ -36,15 +37,16 @@ export function SidebarCollaborateur({ isOpen }: SidebarProps) {
     {
       title: "PRINCIPAL",
       items: [
-        { icon: Home, label: "Tableau de bord", href: "/dashboardc/dashboardcollab" },
+        { icon: Home, label: "Tableau de bord", href: "/dashboardc" },
         { icon: FileText, label: "Mes documents", href: "/dashboardc/mesdocuments" },
       ],
     },
     {
       title: "SYSTÈME",
       items: [
+        { icon: ClipboardList, label: "Plan d'intégration", href: '/dashboardc/integration' },
         { icon: BookOpen, label: "Formations", href: "/dashboardc/formation" },
-        { icon: CalendarCheck, label: "Paramètres", href: "/dashboardc/integration" },
+        { icon: CalendarCheck, label: "Paramètres", href: "/dashboardc/parametres" },
       ],
     },
   ];
