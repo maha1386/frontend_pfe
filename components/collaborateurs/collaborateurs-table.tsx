@@ -9,8 +9,8 @@ interface CollaborateursTableProps {
   sortField: SortField;
   sortDir: SortDir;
   onSort: (field: SortField) => void;
-  onToggleActive: (id: number, isActive: boolean) => void;
-  onModifier: (collaborateur: Collaborateur) => void;
+  onToggleActive?: (id: number, isActive: boolean) => void;  // ← optionnel
+  onModifier?: (collaborateur: Collaborateur) => void;        // ← optionnel
   onDetails: (collaborateur: Collaborateur) => void;
 }
 
@@ -122,24 +122,34 @@ export function CollaborateursTable({
                   </td>
                   <td className="px-6 py-4">
                     <div className="flex items-center gap-2">
-                      <button
-                        onClick={() => onModifier(c)}
-                        className="flex items-center gap-1.5 px-3 py-1.5 text-xs font-medium text-blue-600 border border-blue-200 rounded-lg hover:bg-blue-50 transition-colors"
-                      >
-                        <Edit2 className="w-3.5 h-3.5" />
-                        Modifier
-                      </button>
-                      <button
-                        onClick={() => onToggleActive(c.id, c.active)}
-                        className={`flex items-center gap-1.5 px-3 py-1.5 text-xs font-medium rounded-lg transition-colors ${
-                          c.active
-                            ? "text-red-500 border border-red-200 hover:bg-red-50"
-                            : "text-green-600 border border-green-200 hover:bg-green-50"
-                        }`}
-                      >
-                        <PowerOff className="w-3.5 h-3.5" />
-                        {c.active ? "Désactiver" : "Activer"}
-                      </button>
+
+                      {/* Modifier — visible seulement si onModifier fourni */}
+                      {onModifier && (
+                        <button
+                          onClick={() => onModifier(c)}
+                          className="flex items-center gap-1.5 px-3 py-1.5 text-xs font-medium text-blue-600 border border-blue-200 rounded-lg hover:bg-blue-50 transition-colors"
+                        >
+                          <Edit2 className="w-3.5 h-3.5" />
+                          Modifier
+                        </button>
+                      )}
+
+                      {/* Toggle — visible seulement si onToggleActive fourni */}
+                      {onToggleActive && (
+                        <button
+                          onClick={() => onToggleActive(c.id, c.active)}
+                          className={`flex items-center gap-1.5 px-3 py-1.5 text-xs font-medium rounded-lg transition-colors ${
+                            c.active
+                              ? "text-red-500 border border-red-200 hover:bg-red-50"
+                              : "text-green-600 border border-green-200 hover:bg-green-50"
+                          }`}
+                        >
+                          <PowerOff className="w-3.5 h-3.5" />
+                          {c.active ? "Désactiver" : "Activer"}
+                        </button>
+                      )}
+
+                      {/* Détails — toujours visible */}
                       <button
                         onClick={() => onDetails(c)}
                         className="flex items-center gap-1.5 px-3 py-1.5 text-xs font-medium text-gray-600 border border-gray-200 rounded-lg hover:bg-gray-50 transition-colors"
@@ -147,6 +157,7 @@ export function CollaborateursTable({
                         <Eye className="w-3.5 h-3.5" />
                         Détails
                       </button>
+
                     </div>
                   </td>
                 </tr>

@@ -5,10 +5,8 @@ import { useParams } from "next/navigation";
 import { Loader2, AlertCircle, Sidebar } from "lucide-react";
 import { RHDetailHeader } from "../../../../components/Rh/RHDetailHeader";
 import { RhDetailCards } from "../../../../components/Rh/RhDetailCards";
-import { rhService } from "../../../service/rh.service";
+import { rhService } from "../../../services/rh.service";
 import { RH } from "../../../types/rh.types";
-import { HeaderFinal } from "../../../../components/HeaderFinal";
-import { SidebarFinal } from "../../../../components/Sidebar";
 import { RhEditModal } from "../../../../components/Rh/RhEditModal"; 
 
 export default function RhDetailPage() {

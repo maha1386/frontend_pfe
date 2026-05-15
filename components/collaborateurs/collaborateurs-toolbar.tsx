@@ -8,9 +8,9 @@ interface CollaborateursToolbarProps {
   onSearchChange: (value: string) => void;
   statusFilter: StatusFilter;
   onStatusFilterChange: (value: StatusFilter) => void;
-  roleFilter: string;                                  
-  onRoleFilterChange: (value: string) => void;           
-  onNouveau: () => void;
+  roleFilter: string;
+  onRoleFilterChange: (value: string) => void;
+  onNouveau?: () => void;  // ← optionnel
 }
 
 export function CollaborateursToolbar({
@@ -18,11 +18,13 @@ export function CollaborateursToolbar({
   onSearchChange,
   statusFilter,
   onStatusFilterChange,
-  roleFilter, onRoleFilterChange,
+  roleFilter,
+  onRoleFilterChange,
   onNouveau,
 }: CollaborateursToolbarProps) {
   return (
     <div className="flex items-center gap-4 flex-wrap">
+
       {/* Recherche */}
       <div className="relative flex-1 min-w-[260px] max-w-lg">
         <Search className="absolute left-3 top-1/2 -translate-y-1/2 w-4 h-4 text-gray-400" />
@@ -45,6 +47,8 @@ export function CollaborateursToolbar({
         <option value="active">Actif</option>
         <option value="inactive">Inactif</option>
       </select>
+
+      {/* Filtre rôle */}
       <select
         value={roleFilter}
         onChange={(e) => onRoleFilterChange(e.target.value)}
@@ -54,14 +58,17 @@ export function CollaborateursToolbar({
         <option value="new_collaborateur">Nouveau collaborateur</option>
       </select>
 
-      {/* Bouton Nouveau */}
-      <button
-        onClick={onNouveau}
-        className="ml-auto flex items-center gap-2 px-5 py-2.5 bg-blue-600 hover:bg-blue-700 text-white text-sm font-medium rounded-xl transition-colors"
-      >
-        <UserPlus className="w-4 h-4" />
-        Nouveau
-      </button>
+      {/* Bouton Nouveau — visible seulement si onNouveau fourni */}
+      {onNouveau && (
+        <button
+          onClick={onNouveau}
+          className="ml-auto flex items-center gap-2 px-5 py-2.5 bg-blue-600 hover:bg-blue-700 text-white text-sm font-medium rounded-xl transition-colors"
+        >
+          <UserPlus className="w-4 h-4" />
+          Nouveau
+        </button>
+      )}
+
     </div>
   );
 }

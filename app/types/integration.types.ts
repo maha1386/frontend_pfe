@@ -24,6 +24,12 @@ export interface Task {
   week_number: number | null;
   rejection_reason: string | null;
   comments: TaskComment[];
+  responsable_id?: number | null;
+  responsable?: {
+    id:         number;
+    first_name: string;
+    last_name:  string;
+  } | null;
 }
 
 export interface Phase {

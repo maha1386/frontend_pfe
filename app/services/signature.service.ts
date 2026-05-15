@@ -1,7 +1,14 @@
 // services/signature.service.ts
 import type { DocumentSignature } from "../types/signature.types";
 
+// Pour les appels authentifiés (PC, dashboard) — passe par le proxy Next.js
 const API_BASE = process.env.NEXT_PUBLIC_API_URL ?? "/api";
+
+// Pour les appels publics (mobile, QR code) — appel direct au backend Cloudflare
+// localhost ne fonctionne pas sur mobile, il faut l'URL publique
+const API_PUBLIC = process.env.NEXT_PUBLIC_BACKEND_PUBLIC_URL
+  ? `${process.env.NEXT_PUBLIC_BACKEND_PUBLIC_URL}/api`
+  : API_BASE;
 
 const authHeaders = () => ({
   Authorization: `Bearer ${localStorage.getItem("token")}`,
@@ -9,7 +16,7 @@ const authHeaders = () => ({
   "Content-Type": "application/json",
 });
 
-// ─── Types ────────────────────────────────────────────────────────────────────
+// ─── Types ───────────────────────────────────────────────────────────────────
 
 export interface SignatureStatus {
   has_signature: boolean;
@@ -21,7 +28,7 @@ export interface TokenResponse {
   url: string;
 }
 
-// ─── Générer token QR ─────────────────────────────────────────────────────────
+// ─── Générer token QR ────────────────────────────────────────────────────────
 
 export async function genererToken(): Promise<TokenResponse> {
   const res = await fetch(`${API_BASE}/signature/token`, {
@@ -31,18 +38,18 @@ export async function genererToken(): Promise<TokenResponse> {
   return await res.json();
 }
 
-// ─── Vérifier token (mobile) ──────────────────────────────────────────────────
+// ─── Vérifier token (mobile) — utilise API_PUBLIC ────────────────────────────
 
 export async function verifierToken(token: string) {
-  const res = await fetch(`${API_BASE}/sign/${token}`);
+  const res = await fetch(`${API_PUBLIC}/sign/${token}`);
   if (!res.ok) throw new Error("Token invalide ou expiré");
   return await res.json();
 }
 
-// ─── Enregistrer signature (mobile) ──────────────────────────────────────────
+// ─── Enregistrer signature (mobile) — utilise API_PUBLIC ─────────────────────
 
 export async function enregistrerSignature(token: string, signatureBase64: string) {
-  const res = await fetch(`${API_BASE}/sign/${token}`, {
+  const res = await fetch(`${API_PUBLIC}/sign/${token}`, {
     method: "POST",
     headers: { "Content-Type": "application/json" },
     body: JSON.stringify({ signature: signatureBase64 }),
@@ -54,7 +61,7 @@ export async function enregistrerSignature(token: string, signatureBase64: strin
   return await res.json();
 }
 
-// ─── Statut signature collaborateur connecté ──────────────────────────────────
+// ─── Statut signature collaborateur connecté ─────────────────────────────────
 
 export async function getSignatureStatus(): Promise<SignatureStatus> {
   const res = await fetch(`${API_BASE}/signature/status`, {
@@ -92,8 +99,8 @@ export async function signerDocument(documentId: number) {
 // ─── Export objet (compatibilité hooks) ──────────────────────────────────────
 
 export const signatureService = {
-  getAll:              getAllSignatures,
-  getStatus:           getSignatureStatus,
+  getAll:               getAllSignatures,
+  getStatus:            getSignatureStatus,
   genererToken,
   verifierToken,
   enregistrerSignature,

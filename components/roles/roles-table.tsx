@@ -11,6 +11,7 @@ interface RolesTableProps {
   loading: boolean;
   onModifier: (role: Role) => void;
   onDelete: (id: number, name: string) => void;
+  readOnly?: boolean;
 }
  function getRoleColor(name: string): string {
   const hash = name.split("").reduce((acc, char) => acc + char.charCodeAt(0), 0);
@@ -37,7 +38,7 @@ function RoleBadge({ name }: { name: string }) {
     </span>
   );
 }
-export function RolesTable({ roles, loading, onModifier, onDelete }: RolesTableProps) {
+export function RolesTable({ roles, loading, onModifier, onDelete, readOnly }: RolesTableProps) {
   if (loading) {
     return (
       <div className="flex items-center justify-center py-20">
@@ -63,7 +64,9 @@ export function RolesTable({ roles, loading, onModifier, onDelete }: RolesTableP
             <th className="text-left px-6 py-3.5 text-xs font-bold text-gray-400 uppercase tracking-wider">#</th>
             <th className="text-left px-6 py-3.5 text-xs font-bold text-gray-400 uppercase tracking-wider">Nom du rôle</th>
             <th className="text-left px-6 py-3.5 text-xs font-bold text-gray-400 uppercase tracking-wider">Statut</th>
-            <th className="text-right px-6 py-3.5 text-xs font-bold text-gray-400 uppercase tracking-wider">Actions</th>
+            {!readOnly && (
+              <th className="text-right px-6 py-3.5 text-xs font-bold text-gray-400 uppercase tracking-wider">Actions</th>
+            )}
           </tr>
         </thead>
         <tbody className="divide-y divide-gray-50">
@@ -85,26 +88,20 @@ export function RolesTable({ roles, loading, onModifier, onDelete }: RolesTableP
                     <span className="text-xs text-gray-400">Personnalisé</span>
                   )}
                 </td>
-                <td className="px-6 py-4">
-                  <div className="flex items-center justify-end gap-2">
-                    <button
-                      onClick={() => onModifier(role)}
-                      disabled={isProtected}
-                      className="flex items-center gap-1.5 px-3 py-1.5 text-xs font-medium text-gray-600 border border-gray-200 rounded-lg hover:bg-gray-50 transition-colors disabled:opacity-30 disabled:cursor-not-allowed"
-                    >
-                      <Edit2 className="w-3.5 h-3.5" />
-                      Modifier
-                    </button>
-                    <button
-                      onClick={() => onDelete(role.id, role.name)}
-                      disabled={isProtected}
-                      className="flex items-center gap-1.5 px-3 py-1.5 text-xs font-medium text-red-600 border border-red-200 rounded-lg hover:bg-red-50 transition-colors disabled:opacity-30 disabled:cursor-not-allowed"
-                    >
-                      <Trash2 className="w-3.5 h-3.5" />
-                      Supprimer
-                    </button>
-                  </div>
-                </td>
+                {!readOnly && (
+                  <td className="px-6 py-4">
+                    <div className="flex items-center justify-end gap-2">
+                      <button onClick={() => onModifier(role)} disabled={isProtected} className="flex items-center gap-1.5 px-3 py-1.5 text-xs font-medium text-gray-600 border border-gray-200 rounded-lg hover:bg-gray-50 transition-colors disabled:opacity-30 disabled:cursor-not-allowed">
+                        <Edit2 className="w-3.5 h-3.5" />
+                        Modifier
+                      </button>
+                      <button onClick={() => onDelete(role.id, role.name)} disabled={isProtected} className="flex items-center gap-1.5 px-3 py-1.5 text-xs font-medium text-red-600 border border-red-200 rounded-lg hover:bg-red-50 transition-colors disabled:opacity-30 disabled:cursor-not-allowed">
+                        <Trash2 className="w-3.5 h-3.5" />
+                        Supprimer
+                      </button>
+                    </div>
+                  </td>
+                )}
               </tr>
             );
           })}

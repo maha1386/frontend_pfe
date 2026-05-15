@@ -14,6 +14,14 @@ export interface Task {
   status:          TaskStatus;
   deadline:        string;
   completion_date: string | null;
+  responsable_id:  number | null;       
+  responsable?:    TaskResponsable;
+}
+export interface TaskResponsable {
+  id:         number;
+  first_name: string;
+  last_name:  string;
+  role:       string;
 }
 
 export interface OnboardingUser {
@@ -63,6 +71,7 @@ export interface UpdateTaskPayload {
   deadline?:   string;
   type?:       TaskType;
   status?:     TaskStatus;
+  responsable_id?: number | null;
 }
 
 export interface AddTaskPayload {
@@ -73,4 +82,5 @@ export interface AddTaskPayload {
   month_number: number;
   week_number:  number;
   day_name?:    string;
+  responsable_id?: number | null;
 }

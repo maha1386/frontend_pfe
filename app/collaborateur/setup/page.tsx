@@ -30,7 +30,8 @@ export default function CollaborateurSetupPage() {
     setUserName(`${user.first_name || ""} ${user.last_name || ""}`.trim());
 
     if (user.signature_path) {
-      router.replace("/dashboardc");
+      // Signature déjà faite → aller au CV
+      router.replace("/collaborateur/cv");
       return;
     }
 
@@ -38,7 +39,7 @@ export default function CollaborateurSetupPage() {
   }, []);
 
   const startPolling = () => {
-    if (pollingRef.current) return; // évite les doublons
+    if (pollingRef.current) return;
 
     pollingRef.current = setInterval(async () => {
       try {
@@ -56,11 +57,13 @@ export default function CollaborateurSetupPage() {
           localStorage.setItem("user", JSON.stringify(user));
 
           setStatus("done");
-          setTimeout(() => router.push("/dashboardc"), 2000);
+          // ✅ Redirection vers upload CV après signature
+          setTimeout(() => router.push("/collaborateur/cv"), 2000);
         }
       } catch {}
     }, 3000);
 
+    // Stop polling après 10 minutes
     setTimeout(() => {
       if (pollingRef.current) {
         clearInterval(pollingRef.current);
@@ -113,7 +116,8 @@ export default function CollaborateurSetupPage() {
       <div className="bg-white rounded-2xl shadow-xl p-10 text-center max-w-sm w-full">
         <CheckCircle className="w-16 h-16 text-emerald-500 mx-auto mb-4" />
         <h2 className="text-xl font-bold text-gray-800">Signature enregistrée !</h2>
-        <p className="text-gray-500 mt-2 text-sm">Redirection vers votre tableau de bord...</p>
+        {/* ✅ Message mis à jour */}
+        <p className="text-gray-500 mt-2 text-sm">Redirection vers l'upload de votre CV...</p>
       </div>
     </div>
   );

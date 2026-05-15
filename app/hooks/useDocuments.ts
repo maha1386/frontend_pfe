@@ -8,6 +8,8 @@ export function useDocuments() {
   const [documents, setDocuments] = useState<Document[]>([]);
   const [loading, setLoading] = useState(false);
   const [error, setError] = useState<string | null>(null);
+  const [confirmDeleteId, setConfirmDeleteId] = useState<number | null>(null);
+
 
   const fetchDocuments = async (filters?: DocumentFilters) => {
     try {
@@ -45,27 +47,24 @@ export function useDocuments() {
     }
   };
   const deleteDocument = async (id: number) => {
-    if (!window.confirm("Êtes-vous sûr de vouloir supprimer ce document ?")) return;
-
-    try {
-      await documentService.delete(id);
-      setDocuments((prev) => prev.filter((doc) => doc.id !== id));
-    } catch (err) {
-      alert(err instanceof Error ? err.message : "Erreur lors de la suppression du document");
-    }
-  };
+  try {
+    await documentService.delete(id);
+    setDocuments((prev) => prev.filter((doc) => doc.id !== id));
+  } catch (err) {
+    alert(err instanceof Error ? err.message : "Erreur lors de la suppression");
+  } finally {
+    setConfirmDeleteId(null);
+  }
+};
 
   useEffect(() => {
     fetchDocuments();
   }, []);
 
-  return {
-    documents,
-    loading,
-    error,
-    fetchDocuments,
-    addDocument,
-    updateDocument,
-    deleteDocument,
-  };
+ return {
+  documents, loading, error,
+  fetchDocuments, addDocument, updateDocument,
+  deleteDocument,
+  confirmDeleteId, setConfirmDeleteId,
+};
 }

@@ -8,6 +8,7 @@ export interface DocumentAssignment {
 }
 
 export interface Document {
+  assigned_to_name: string;
   id: number;
   namedoc: string;
   path: string;

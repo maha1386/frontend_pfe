@@ -43,24 +43,25 @@ export function SidebarFinal({ isOpen }: SidebarProps) {
         { icon: Home, label: 'Tableau de bord', href: '/dashboard' },
         { icon: Users, label: 'Collaborateurs', href: '/dashboard/collaborateur', badge: collabTotal },
         { icon: Shield, label: 'Rôles', href: '/dashboard/roles'},
-        { icon: FolderOpen, label: 'Projets', href: '/dashboard/projets', badge: '12' },
+        //{ icon: FolderOpen, label: 'Projets', href: '/dashboard/projets', badge: '12' },
       ],
     },
     {
       title: 'GESTION',
       items: [
-        { icon: Calendar, label: 'Calendrier', href: '/dashboard/calendrier' },
+        //{ icon: Calendar, label: 'Calendrier', href: '/dashboard/calendrier' },
         { icon: FileText, label: 'Documents', href: '/dashboard/document' },
         { icon: Mail, label: 'Messages', href: '/dashboard/messages' },
         { icon: ClipboardList, label: 'Onboarding', href: '/dashboard/onboarding' },
+        { icon: ClipboardList, label: 'Mes Suivis', href: '/dashboard/suivis' },
       ],
     },
     {
       title: 'SYSTÈME',
       items: [
         { icon: UserCircle, label: 'Mon profil', href: '/dashboard/Profil' },
-        { icon: BarChart3, label: 'Rapports', href: '/dashboard/rapports' },
-        { icon: Settings, label: 'Paramètres', href: '/dashboard/parametres' },
+        //{ icon: BarChart3, label: 'Rapports', href: '/dashboard/rapports' },
+        //{ icon: Settings, label: 'Paramètres', href: '/dashboard/parametres' },
       ],
     },
   ];

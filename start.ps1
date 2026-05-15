@@ -10,7 +10,7 @@ if (Test-Path "flask-out.log")    { Remove-Item "flask-out.log" }
 if (Test-Path "flask-err.log")    { Remove-Item "flask-err.log" }
 
 # ============================================================
-# ✅ Lance Flask CV API
+# Lance Flask CV API
 # ============================================================
 Write-Host "Lance Flask CV API..." -ForegroundColor Yellow
 $flaskDir = 'C:\Users\bourb\OneDrive\Bureau\modelextraction\main'
@@ -117,18 +117,44 @@ if (Test-Path $aiEnvPath) {
 }
 # ============================================================
 
-# Met a jour .env.local
-$env1 = "BACKEND_URL=" + $backendUrl
-$env2 = "NEXT_PUBLIC_API_URL=/api"
+# ============================================================
+# Met a jour .env.local (Next.js)
+#
+# BACKEND_URL             = http://localhost:8000
+#   → utilisé par next.config.js pour le proxy serveur Node.js
+#   → DOIT être localhost : Node.js ne peut pas résoudre un DNS
+#     Cloudflare qui vient d'être créé à la volée
+#
+# NEXT_PUBLIC_API_URL     = http://localhost:3000/api
+#   → appelé par le browser, passe par le proxy Next.js (localhost:3000)
+#     qui redirige vers localhost:8000 (Laravel)
+#
+# NEXT_PUBLIC_FRONTEND_URL        = URL Cloudflare frontend (publique)
+# NEXT_PUBLIC_BACKEND_PUBLIC_URL  = URL Cloudflare backend  (publique, si besoin côté client)
+# ============================================================
+$env1 = "BACKEND_URL=http://localhost:8000"
+$env2 = "NEXT_PUBLIC_API_URL=http://localhost:3000/api"
 $env3 = "NEXT_PUBLIC_FRONTEND_URL=" + $frontendUrl
-$env1, $env2, $env3 | Set-Content ".env.local"
+$env4 = "NEXT_PUBLIC_BACKEND_PUBLIC_URL=" + $backendUrl
+$env1, $env2, $env3, $env4 | Set-Content ".env.local"
 Write-Host ".env.local mis a jour!" -ForegroundColor Green
 
+# ============================================================
 # Met a jour Laravel .env
+# ============================================================
 $laravelPath = "C:\xampp\htdocs\Pfe\.env"
 if (Test-Path $laravelPath) {
     $lenv = Get-Content $laravelPath -Raw
-    $lenv = $lenv -replace 'FRONTEND_URL=.*', ("FRONTEND_URL=" + $frontendUrl)
+
+    # Extraire les hosts (sans https://)
+    $backendHost  = ([Uri]$backendUrl).Host
+    $frontendHost = ([Uri]$frontendUrl).Host
+
+    # Mettre a jour toutes les URLs et domaines
+    $lenv = $lenv -replace 'APP_URL=.*',                  ("APP_URL=" + $backendUrl)
+    $lenv = $lenv -replace 'FRONTEND_URL=.*',             ("FRONTEND_URL=" + $frontendUrl)
+    $lenv = $lenv -replace 'SESSION_DOMAIN=.*',           ("SESSION_DOMAIN=.trycloudflare.com")
+    $lenv = $lenv -replace 'SANCTUM_STATEFUL_DOMAINS=.*', ("SANCTUM_STATEFUL_DOMAINS=" + $backendHost + "," + $frontendHost)
 
     if ($aiUrl -ne "") {
         if ($lenv -match "AI_SERVICE_URL=") {
@@ -141,15 +167,28 @@ if (Test-Path $laravelPath) {
 
     Set-Content $laravelPath $lenv
     Write-Host "Laravel .env mis a jour!" -ForegroundColor Green
+
+    # Vider les caches Laravel
+    Write-Host "Vidage des caches Laravel..." -ForegroundColor Yellow
+    $phpExe      = "C:\xampp\php\php.exe"
+    $artisanPath = "C:\xampp\htdocs\Pfe\artisan"
+    & $phpExe $artisanPath config:clear
+    & $phpExe $artisanPath cache:clear
+    & $phpExe $artisanPath route:clear
+    Write-Host "Caches Laravel vides!" -ForegroundColor Green
+} else {
+    Write-Host "AVERTISSEMENT: Laravel .env non trouve a $laravelPath" -ForegroundColor Red
 }
+# ============================================================
 
 Write-Host ""
 Write-Host "=== RESUME ===" -ForegroundColor Cyan
-Write-Host "Frontend : $frontendUrl" -ForegroundColor Green
-Write-Host "Backend  : $backendUrl" -ForegroundColor Green
-Write-Host "Flask    : http://127.0.0.1:5000" -ForegroundColor Magenta
-Write-Host "IA Colab : $(if ($aiUrl) { $aiUrl } else { 'non configure' })" -ForegroundColor Cyan
-Write-Host "QR Code  : $frontendUrl/sign/TOKEN" -ForegroundColor Yellow
+Write-Host "Frontend (public)  : $frontendUrl" -ForegroundColor Green
+Write-Host "Backend  (public)  : $backendUrl" -ForegroundColor Green
+Write-Host "Proxy Next.js      : localhost:3000/api -> localhost:8000/api" -ForegroundColor Green
+Write-Host "Flask              : http://127.0.0.1:5000" -ForegroundColor Magenta
+Write-Host "IA Colab           : $(if ($aiUrl) { $aiUrl } else { 'non configure' })" -ForegroundColor Cyan
+Write-Host "QR Code            : $frontendUrl/sign/TOKEN" -ForegroundColor Yellow
 Write-Host ""
 Write-Host "Demarrage Next.js..." -ForegroundColor Yellow
 

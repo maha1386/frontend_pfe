@@ -6,7 +6,27 @@ C:\Users\bourb\AppData\Local\Programs\Python\Python311\Lib\site-packages\paddle\
 [32mModel files already exist. Using cached files. To redownload, please delete the directory manually: `C:\Users\bourb\.paddlex\official_models\PP-OCRv5_server_det`.[0m
 [32mCreating model: ('latin_PP-OCRv5_mobile_rec', None)[0m
 [32mModel files already exist. Using cached files. To redownload, please delete the directory manually: `C:\Users\bourb\.paddlex\official_models\latin_PP-OCRv5_mobile_rec`.[0m
-[2026-05-11 21:50:00,970] [    INFO] _internal.py:97 - [31m[1mWARNING: This is a development server. Do not use it in a production deployment. Use a production WSGI server instead.[0m
+[2026-05-15 10:59:26,229] [    INFO] _internal.py:97 - [31m[1mWARNING: This is a development server. Do not use it in a production deployment. Use a production WSGI server instead.[0m
  * Running on http://127.0.0.1:5000
-[2026-05-11 21:50:00,986] [    INFO] _internal.py:97 - [33mPress CTRL+C to quit[0m
-[2026-05-11 21:50:01,100] [    INFO] _internal.py:97 - 127.0.0.1 - - [11/May/2026 21:50:01] "GET /health HTTP/1.1" 200 -
+[2026-05-15 10:59:26,229] [    INFO] _internal.py:97 - [33mPress CTRL+C to quit[0m
+[2026-05-15 10:59:28,695] [    INFO] _internal.py:97 - 127.0.0.1 - - [15/May/2026 10:59:28] "GET /health HTTP/1.1" 200 -
+[33mResized image size (15888x64) exceeds max_side_limit of 4000. Resizing to fit within limit.[0m
+[2026-05-15 12:06:56,241] [    INFO] _internal.py:97 - 127.0.0.1 - - [15/May/2026 12:06:56] "POST /extract HTTP/1.1" 200 -
+[33mResized image size (15888x64) exceeds max_side_limit of 4000. Resizing to fit within limit.[0m
+[2026-05-15 12:33:43,064] [    INFO] _internal.py:97 - 127.0.0.1 - - [15/May/2026 12:33:43] "POST /extract HTTP/1.1" 200 -
+[33mResized image size (15888x64) exceeds max_side_limit of 4000. Resizing to fit within limit.[0m
+[2026-05-15 12:40:36,937] [    INFO] _internal.py:97 - 127.0.0.1 - - [15/May/2026 12:40:36] "POST /extract HTTP/1.1" 200 -
+[33mResized image size (15888x64) exceeds max_side_limit of 4000. Resizing to fit within limit.[0m
+[2026-05-15 12:47:07,429] [    INFO] _internal.py:97 - 127.0.0.1 - - [15/May/2026 12:47:07] "POST /extract HTTP/1.1" 200 -
+[33mResized image size (45696x64) exceeds max_side_limit of 4000. Resizing to fit within limit.[0m
+[2026-05-15 12:55:54,737] [    INFO] _internal.py:97 - 127.0.0.1 - - [15/May/2026 12:55:54] "POST /extract HTTP/1.1" 200 -
+[33mResized image size (45696x64) exceeds max_side_limit of 4000. Resizing to fit within limit.[0m
+[2026-05-15 13:12:26,023] [    INFO] _internal.py:97 - 127.0.0.1 - - [15/May/2026 13:12:26] "POST /extract HTTP/1.1" 200 -
+[33mResized image size (45696x64) exceeds max_side_limit of 4000. Resizing to fit within limit.[0m
+[2026-05-15 13:37:02,131] [    INFO] _internal.py:97 - 127.0.0.1 - - [15/May/2026 13:37:02] "POST /extract HTTP/1.1" 200 -
+[33mResized image size (45696x64) exceeds max_side_limit of 4000. Resizing to fit within limit.[0m
+[2026-05-15 13:48:20,130] [    INFO] _internal.py:97 - 127.0.0.1 - - [15/May/2026 13:48:20] "POST /extract HTTP/1.1" 200 -
+[33mResized image size (45696x64) exceeds max_side_limit of 4000. Resizing to fit within limit.[0m
+[2026-05-15 13:50:47,054] [    INFO] _internal.py:97 - 127.0.0.1 - - [15/May/2026 13:50:47] "POST /extract HTTP/1.1" 200 -
+[33mResized image size (45696x64) exceeds max_side_limit of 4000. Resizing to fit within limit.[0m
+[2026-05-15 14:02:37,347] [    INFO] _internal.py:97 - 127.0.0.1 - - [15/May/2026 14:02:37] "POST /extract HTTP/1.1" 200 -

@@ -1,4 +1,4 @@
-    import { RH, RHFilters } from "../types/rh.types"
+import { RH, RHFilters } from "../types/rh.types"
 
     const API_URL = "http://localhost:8000/api"
 
@@ -33,8 +33,9 @@
         const text = await res.text()
         throw new Error("Erreur lors du chargement des RH: " + text)
         }
-
-        return res.json()
+        const json = await res.json()
+        console.log("Réponse API staff:", json)
+        return json
     },
 
     async getById(id: number): Promise<RH> {

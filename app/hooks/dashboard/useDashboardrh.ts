@@ -25,6 +25,7 @@ export interface ActiviteItem {
   message: string;
   role?: string | null;
   date: string;
+  onboarding_progress?: number;
 }
 
 export type AlerteItem = {

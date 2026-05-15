@@ -8,7 +8,7 @@ import {
   Mail,
 } from "lucide-react";
 import React, { useEffect, useState } from "react"; 
-import { rhService } from "@/app/service/rh.service";
+import { rhService } from "@/app/services/rh.service";
 import { RH } from "../../app/types/rh.types";
 
 interface Props {

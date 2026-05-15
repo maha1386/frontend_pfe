@@ -61,13 +61,7 @@ function phaseStatusLabel(s: string) {
 
 // ── Sous-composant : CommentForm ─────────────────────────────
 
-function CommentForm({
-  taskId,
-  onAdded,
-}: {
-  taskId: number;
-  onAdded: () => void;
-}) {
+function CommentForm({ taskId, onAdded }: { taskId: number; onAdded: () => void }) {
   const [content, setContent] = useState("");
   const [link, setLink]       = useState("");
   const [file, setFile]       = useState<File | null>(null);
@@ -88,11 +82,9 @@ function CommentForm({
         link:       link.trim()    || undefined,
         attachment: file ?? undefined,
       });
-      setContent("");
-      setLink("");
-      setFile(null);
+      setContent(""); setLink(""); setFile(null);
       if (fileRef.current) fileRef.current.value = "";
-      onAdded(); // signal refresh au parent
+      onAdded();
     } catch (e: any) {
       setError(e.message);
     } finally {
@@ -103,68 +95,27 @@ function CommentForm({
   return (
     <div style={{ marginTop: 12, padding: "12px", background: "#f8fafc", borderRadius: 8, border: "1px solid #e5e7eb" }}>
       <p style={{ fontSize: 12, fontWeight: 600, color: "#374151", marginBottom: 8 }}>Ajouter un commentaire</p>
-
       <textarea
-        value={content}
-        onChange={e => setContent(e.target.value)}
-        placeholder="Décrivez votre avancement, ajoutez des notes..."
-        rows={3}
-        style={{
-          width: "100%", fontSize: 13, padding: "8px 10px",
-          border: "1px solid #d1d5db", borderRadius: 6,
-          resize: "vertical", fontFamily: "inherit", boxSizing: "border-box",
-        }}
+        value={content} onChange={e => setContent(e.target.value)}
+        placeholder="Décrivez votre avancement, ajoutez des notes..." rows={3}
+        style={{ width: "100%", fontSize: 13, padding: "8px 10px", border: "1px solid #d1d5db", borderRadius: 6, resize: "vertical", fontFamily: "inherit", boxSizing: "border-box" }}
       />
-
-      <input
-        type="url"
-        value={link}
-        onChange={e => setLink(e.target.value)}
+      <input type="url" value={link} onChange={e => setLink(e.target.value)}
         placeholder="Lien Git, PR, Notion... (optionnel)"
-        style={{
-          width: "100%", marginTop: 8, fontSize: 13, padding: "7px 10px",
-          border: "1px solid #d1d5db", borderRadius: 6, boxSizing: "border-box",
-        }}
+        style={{ width: "100%", marginTop: 8, fontSize: 13, padding: "7px 10px", border: "1px solid #d1d5db", borderRadius: 6, boxSizing: "border-box" }}
       />
-
       <div style={{ marginTop: 8, display: "flex", alignItems: "center", gap: 8 }}>
-        <label style={{
-          fontSize: 12, padding: "5px 10px", border: "1px solid #d1d5db",
-          borderRadius: 6, cursor: "pointer", background: "#fff", color: "#374151",
-        }}>
+        <label style={{ fontSize: 12, padding: "5px 10px", border: "1px solid #d1d5db", borderRadius: 6, cursor: "pointer", background: "#fff", color: "#374151" }}>
           📎 Joindre un fichier
-          <input
-            ref={fileRef}
-            type="file"
-            style={{ display: "none" }}
-            onChange={e => setFile(e.target.files?.[0] ?? null)}
-          />
+          <input ref={fileRef} type="file" style={{ display: "none" }} onChange={e => setFile(e.target.files?.[0] ?? null)} />
         </label>
-        {file && (
-          <span style={{ fontSize: 12, color: "#6b7280", flex: 1, overflow: "hidden", textOverflow: "ellipsis", whiteSpace: "nowrap" }}>
-            {file.name}
-          </span>
-        )}
-        {file && (
-          <button
-            onClick={() => { setFile(null); if (fileRef.current) fileRef.current.value = ""; }}
-            style={{ fontSize: 11, color: "#ef4444", background: "none", border: "none", cursor: "pointer" }}
-          >✕</button>
-        )}
+        {file && <span style={{ fontSize: 12, color: "#6b7280", flex: 1, overflow: "hidden", textOverflow: "ellipsis", whiteSpace: "nowrap" }}>{file.name}</span>}
+        {file && <button onClick={() => { setFile(null); if (fileRef.current) fileRef.current.value = ""; }} style={{ fontSize: 11, color: "#ef4444", background: "none", border: "none", cursor: "pointer" }}>✕</button>}
       </div>
-
       {error && <p style={{ fontSize: 12, color: "#dc2626", marginTop: 6 }}>{error}</p>}
-
       <div style={{ marginTop: 10, display: "flex", justifyContent: "flex-end" }}>
-        <button
-          onClick={submit}
-          disabled={loading}
-          style={{
-            fontSize: 13, padding: "6px 16px", borderRadius: 6,
-            background: loading ? "#93c5fd" : "#2563eb",
-            color: "#fff", border: "none", cursor: loading ? "not-allowed" : "pointer",
-          }}
-        >
+        <button onClick={submit} disabled={loading}
+          style={{ fontSize: 13, padding: "6px 16px", borderRadius: 6, background: loading ? "#93c5fd" : "#2563eb", color: "#fff", border: "none", cursor: loading ? "not-allowed" : "pointer" }}>
           {loading ? "Envoi..." : "Envoyer"}
         </button>
       </div>
@@ -179,41 +130,24 @@ function CommentList({ comments, onDelete }: { comments: TaskComment[]; onDelete
   return (
     <div style={{ marginTop: 10, display: "flex", flexDirection: "column", gap: 8 }}>
       {comments.map(c => (
-        <div
-          key={c.id}
-          style={{ padding: "10px 12px", background: "#fff", border: "1px solid #e5e7eb", borderRadius: 8, fontSize: 13 }}
-        >
+        <div key={c.id} style={{ padding: "10px 12px", background: "#fff", border: "1px solid #e5e7eb", borderRadius: 8, fontSize: 13 }}>
           <div style={{ display: "flex", justifyContent: "space-between", alignItems: "flex-start" }}>
             <span style={{ fontWeight: 500, color: "#374151" }}>{c.author?.name ?? "Moi"}</span>
             <div style={{ display: "flex", gap: 8, alignItems: "center" }}>
               <span style={{ fontSize: 11, color: "#9ca3af" }}>{fmtDate(c.created_at.slice(0, 10))}</span>
-              <button
-                onClick={() => onDelete(c.id)}
-                style={{ fontSize: 11, color: "#ef4444", background: "none", border: "none", cursor: "pointer" }}
-              >✕</button>
+              <button onClick={() => onDelete(c.id)} style={{ fontSize: 11, color: "#ef4444", background: "none", border: "none", cursor: "pointer" }}>✕</button>
             </div>
           </div>
-
           {c.content && <p style={{ margin: "6px 0 0", color: "#374151", lineHeight: 1.5 }}>{c.content}</p>}
-
           {c.link && (
-            <a
-              href={c.link}
-              target="_blank"
-              rel="noopener noreferrer"
-              style={{ display: "inline-flex", alignItems: "center", gap: 4, marginTop: 6, fontSize: 12, color: "#2563eb" }}
-            >
+            <a href={c.link} target="_blank" rel="noopener noreferrer"
+              style={{ display: "inline-flex", alignItems: "center", gap: 4, marginTop: 6, fontSize: 12, color: "#2563eb" }}>
               🔗 {c.link.length > 60 ? c.link.slice(0, 60) + "…" : c.link}
             </a>
           )}
-
           {c.has_attachment && c.download_url && (
-            <a
-              href={c.download_url}
-              target="_blank"
-              rel="noopener noreferrer"
-              style={{ display: "inline-flex", alignItems: "center", gap: 4, marginTop: 6, fontSize: 12, color: "#059669" }}
-            >
+            <a href={c.download_url} target="_blank" rel="noopener noreferrer"
+              style={{ display: "inline-flex", alignItems: "center", gap: 4, marginTop: 6, fontSize: 12, color: "#059669" }}>
               📄 {c.attachment_name ?? "Fichier joint"}
             </a>
           )}
@@ -223,17 +157,52 @@ function CommentList({ comments, onDelete }: { comments: TaskComment[]; onDelete
   );
 }
 
+// ── Sous-composant : WeekSection ─────────────────────────────
+
+function WeekSection({ weekNum, weekTasks, children }: {
+  weekNum:   number;
+  weekTasks: Task[];
+  children:  React.ReactNode;
+}) {
+  const [open, setOpen] = useState(true);
+  const done = weekTasks.filter(t => t.completed).length;
+
+  return (
+    <div style={{ border: "1px solid #e5e7eb", borderRadius: 10, overflow: "hidden", marginBottom: 8 }}>
+      <div
+        onClick={() => setOpen(v => !v)}
+        style={{
+          padding: "8px 14px", background: "#f9fafb",
+          borderBottom: open ? "1px solid #f3f4f6" : "none",
+          display: "flex", justifyContent: "space-between", alignItems: "center",
+          cursor: "pointer", userSelect: "none",
+        }}
+      >
+        <span style={{ fontSize: 13, fontWeight: 600, color: "#374151" }}>Semaine {weekNum}</span>
+        <div style={{ display: "flex", alignItems: "center", gap: 8 }}>
+          <span style={{ fontSize: 12, color: "#9ca3af" }}>{done}/{weekTasks.length} terminées</span>
+          <span style={{
+            fontSize: 12, color: "#9ca3af", display: "inline-block",
+            transition: "transform .2s", transform: open ? "rotate(180deg)" : "rotate(0deg)",
+          }}>▼</span>
+        </div>
+      </div>
+      {open && (
+        <ul style={{ listStyle: "none", margin: 0, padding: "8px", display: "flex", flexDirection: "column", gap: 6 }}>
+          {children}
+        </ul>
+      )}
+    </div>
+  );
+}
+
 // ── Sous-composant : TaskRow ──────────────────────────────────
 
 function TaskRow({
-  task,
-  highlight,
-  onStatusChange,
-  onCommentAdded,
-  onCommentDeleted,
+  task, highlight, onStatusChange, onCommentAdded, onCommentDeleted,
 }: {
-  task: Task;
-  highlight?: boolean;
+  task:             Task;
+  highlight?:       boolean;
   onStatusChange:   (taskId: number, status: TaskStatus) => Promise<void>;
   onCommentAdded:   (taskId: number) => void;
   onCommentDeleted: (taskId: number, commentId: number) => void;
@@ -260,23 +229,15 @@ function TaskRow({
     try {
       await deleteTaskComment(commentId);
       onCommentDeleted(task.id, commentId);
-    } catch (e) {
-      console.error(e);
-    }
+    } catch (e) { console.error(e); }
   };
 
   return (
-    <li
-      ref={rowRef}
-      id={`task-${task.id}`}
-      style={{
-        border:      highlight ? "2px solid #2563eb" : "1px solid #e5e7eb",
-        borderRadius: 8,
-        overflow:    "hidden",
-        transition:  "box-shadow .3s",
-        boxShadow:   highlight ? "0 0 0 3px #dbeafe" : "none",
-      }}
-    >
+    <li ref={rowRef} id={`task-${task.id}`} style={{
+      border: highlight ? "2px solid #2563eb" : "1px solid #e5e7eb",
+      borderRadius: 8, overflow: "hidden", transition: "box-shadow .3s",
+      boxShadow: highlight ? "0 0 0 3px #dbeafe" : "none",
+    }}>
       <div
         style={{
           display: "flex", alignItems: "center", gap: 10, padding: "10px 12px",
@@ -285,6 +246,7 @@ function TaskRow({
         }}
         onClick={() => setExpanded(v => !v)}
       >
+        {/* Jour */}
         <div style={{ width: 60, flexShrink: 0 }}>
           {dl && (
             <span style={{ fontSize: 10, fontWeight: 700, textTransform: "uppercase", letterSpacing: ".06em", color: "#2563eb" }}>
@@ -293,38 +255,45 @@ function TaskRow({
           )}
         </div>
 
+        {/* Titre */}
         <span style={{
           flex: 1, fontSize: 14,
           textDecoration: task.status === "termine" ? "line-through" : "none",
-          color:          task.status === "termine" ? "#9ca3af" : "#111827",
-          fontWeight:     highlight ? 600 : 400,
+          color: task.status === "termine" ? "#9ca3af" : "#111827",
+          fontWeight: highlight ? 600 : 400,
         }}>
           {task.title}
-          {highlight && (
-            <span style={{ marginLeft: 8, fontSize: 11, color: "#2563eb", fontWeight: 500 }}>← depuis l'agenda</span>
-          )}
+          {highlight && <span style={{ marginLeft: 8, fontSize: 11, color: "#2563eb", fontWeight: 500 }}>← depuis l'agenda</span>}
         </span>
 
+        {/* Select statut */}
         <div onClick={e => e.stopPropagation()}>
-          <select
-            disabled={statusLoading}
-            value={task.status}
+          <select disabled={statusLoading} value={task.status}
             onChange={e => handleStatus(e.target.value as TaskStatus)}
-            style={{
-              fontSize: 11, fontWeight: 500, padding: "3px 8px", borderRadius: 20,
-              background: s.bg, color: s.color, border: `1px solid ${s.dot}`,
-              cursor: "pointer", appearance: "none",
-            }}
-          >
-            {STATUS_OPTIONS.map(o => (
-              <option key={o.value} value={o.value}>{o.label}</option>
-            ))}
+            style={{ fontSize: 11, fontWeight: 500, padding: "3px 8px", borderRadius: 20, background: s.bg, color: s.color, border: `1px solid ${s.dot}`, cursor: "pointer", appearance: "none" }}>
+            {STATUS_OPTIONS.map(o => <option key={o.value} value={o.value}>{o.label}</option>)}
           </select>
         </div>
 
+        {/* Date */}
         {task.due_date && (
           <span style={{ fontSize: 12, color: "#9ca3af", whiteSpace: "nowrap" }}>{fmtDate(task.due_date)}</span>
         )}
+
+        {/* Responsable */}
+        {task.responsable && (
+          <span style={{
+            display: "inline-flex", alignItems: "center", gap: 4,
+            fontSize: 11, fontWeight: 500, whiteSpace: "nowrap",
+            background: "#eff6ff", color: "#2563eb",
+            border: "1px solid #bfdbfe", borderRadius: 20,
+            padding: "2px 8px", flexShrink: 0,
+          }}>
+            👤 {task.responsable.first_name} {task.responsable.last_name}
+          </span>
+        )}
+
+        {/* Chevron */}
         <span style={{ fontSize: 12, color: "#9ca3af", transition: "transform .2s", transform: expanded ? "rotate(180deg)" : "none" }}>▼</span>
       </div>
 
@@ -341,62 +310,46 @@ function TaskRow({
 // ── Composant principal ───────────────────────────────────────
 
 interface Props {
-  plan:            IntegrationPlanResponse;
-  onRefresh?:      () => void;
+  plan:             IntegrationPlanResponse;
+  onRefresh?:       () => void;
   highlightTaskId?: number | null;
+  avisSection?:     React.ReactNode;
 }
 
-export function IntegrationPlanComponent({ plan, onRefresh, highlightTaskId }: Props) {
-  // FIX : initialiser avec fallback [] pour éviter le flatMap sur undefined
+export function IntegrationPlanComponent({ plan, onRefresh, highlightTaskId, avisSection }: Props) {
   const [phases, setPhases] = useState<Phase[]>(plan?.phases ?? []);
 
-  // Sync si plan change (ex: après refetch)
-  useEffect(() => {
-    setPhases(plan?.phases ?? []);
-  }, [plan]);
+  useEffect(() => { setPhases(plan?.phases ?? []); }, [plan]);
 
-  // ── Stats globales calculées depuis le state local ─────────
   const totalTasks     = phases.flatMap(p => p.tasks).length;
   const completedTasks = phases.flatMap(p => p.tasks).filter(t => t.completed).length;
   const globalProgress = totalTasks > 0
     ? Math.round((completedTasks / totalTasks) * 100)
     : (plan?.progression ?? 0);
 
-  // ── Changer statut ─────────────────────────────────────────
   const handleStatusChange = async (taskId: number, status: TaskStatus) => {
     await updateMyTask(taskId, status);
     setPhases(prev =>
       prev
-        .map(ph => ({
-          ...ph,
-          tasks: ph.tasks.map(t =>
-            t.id !== taskId ? t : { ...t, status, completed: status === "termine" }
-          ),
-        }))
+        .map(ph => ({ ...ph, tasks: ph.tasks.map(t => t.id !== taskId ? t : { ...t, status, completed: status === "termine" }) }))
         .map(ph => {
-          const done     = ph.tasks.filter(t => t.completed).length;
-          const total    = ph.tasks.length;
+          const done = ph.tasks.filter(t => t.completed).length;
+          const total = ph.tasks.length;
           const progress = total > 0 ? Math.round((done / total) * 100) : 0;
-          const s        = progress === 100 ? "completed" : progress > 0 ? "in-progress" : "not-started";
+          const s = progress === 100 ? "completed" : progress > 0 ? "in-progress" : "not-started";
           return { ...ph, progress, status: s };
         })
     );
   };
 
-  // ── Commentaire ajouté → refresh complet ──────────────────
-  const handleCommentAdded = (_taskId: number) => {
-    onRefresh?.();
-  };
+  const handleCommentAdded = (_taskId: number) => { onRefresh?.(); };
 
-  // ── Commentaire supprimé → update local ──────────────────
   const handleCommentDeleted = (taskId: number, commentId: number) => {
     setPhases(prev =>
       prev.map(ph => ({
         ...ph,
         tasks: ph.tasks.map(t =>
-          t.id === taskId
-            ? { ...t, comments: (t.comments ?? []).filter(c => c.id !== commentId) }
-            : t
+          t.id === taskId ? { ...t, comments: (t.comments ?? []).filter(c => c.id !== commentId) } : t
         ),
       }))
     );
@@ -413,28 +366,41 @@ export function IntegrationPlanComponent({ plan, onRefresh, highlightTaskId }: P
           <div style={{ display: "flex", justifyContent: "space-between", alignItems: "flex-start", marginBottom: 16 }}>
             <div>
               <h1 style={{ fontSize: 20, fontWeight: 600, margin: "0 0 4px" }}>Mon plan d'intégration</h1>
-              <p style={{ fontSize: 13, color: "#6b7280", margin: 0 }}>
-                {fmtDate(plan.start_date)} — {fmtDate(plan.end_date)}
-              </p>
+              <p style={{ fontSize: 13, color: "#6b7280", margin: 0 }}>{fmtDate(plan.start_date)} — {fmtDate(plan.end_date)}</p>
             </div>
             <span style={{ fontSize: 28, fontWeight: 700, color: "#2563eb" }}>{globalProgress}%</span>
           </div>
-
           <div style={{ height: 8, background: "#e5e7eb", borderRadius: 99, overflow: "hidden" }}>
             <div style={{ height: "100%", width: `${globalProgress}%`, background: "#2563eb", borderRadius: 99, transition: "width .4s" }} />
           </div>
-
           <div style={{ display: "flex", justifyContent: "space-between", marginTop: 8, fontSize: 13, color: "#6b7280" }}>
             <span><strong style={{ color: "#111827" }}>{completedTasks}</strong> / {totalTasks} tâches complétées</span>
             {plan.jours_left > 0 && <span>{plan.jours_left} jours restants</span>}
           </div>
         </section>
 
-        {/* Phases */}
+        {/* Phases → Semaines → Tâches */}
         {phases.map(phase => {
           const ps = phaseStatusLabel(phase.status);
+
+          // Grouper les tâches par semaine
+          const tasksSorted = [...(phase.tasks ?? [])].sort((a, b) => {
+            const wDiff = (a.week_number ?? 0) - (b.week_number ?? 0);
+            if (wDiff !== 0) return wDiff;
+            return dayIndex(a.day_name) - dayIndex(b.day_name);
+          });
+
+          const byWeek = tasksSorted.reduce<Record<number, Task[]>>((acc, task) => {
+            const w = task.week_number ?? 0;
+            if (!acc[w]) acc[w] = [];
+            acc[w].push(task);
+            return acc;
+          }, {});
+
           return (
             <section key={phase.phase} style={{ background: "#fff", border: "1px solid #e5e7eb", borderRadius: 12, padding: 20 }}>
+
+              {/* Header phase/mois */}
               <div style={{ display: "flex", justifyContent: "space-between", alignItems: "flex-start", marginBottom: 16 }}>
                 <div>
                   <div style={{ display: "flex", alignItems: "center", gap: 8, marginBottom: 4 }}>
@@ -460,24 +426,24 @@ export function IntegrationPlanComponent({ plan, onRefresh, highlightTaskId }: P
                 </div>
               </div>
 
-              <ul style={{ listStyle: "none", margin: 0, padding: 0, display: "flex", flexDirection: "column", gap: 8 }}>
-                {[...(phase.tasks ?? [])]
-                  .sort((a, b) => {
-                    const wDiff = (a.week_number ?? 0) - (b.week_number ?? 0);
-                    if (wDiff !== 0) return wDiff;
-                    return dayIndex(a.day_name) - dayIndex(b.day_name);
-                  })
-                  .map(task => (
-                    <TaskRow
-                      key={task.id}
-                      task={task}
-                      highlight={task.id === highlightTaskId}
-                      onStatusChange={handleStatusChange}
-                      onCommentAdded={handleCommentAdded}
-                      onCommentDeleted={handleCommentDeleted}
-                    />
-                  ))}
-              </ul>
+              {/* Semaines collapsibles */}
+              {Object.entries(byWeek)
+                .sort(([a], [b]) => Number(a) - Number(b))
+                .map(([weekStr, weekTasks]) => (
+                  <WeekSection key={weekStr} weekNum={Number(weekStr)} weekTasks={weekTasks}>
+                    {weekTasks.map(task => (
+                      <TaskRow
+                        key={task.id}
+                        task={task}
+                        highlight={task.id === highlightTaskId}
+                        onStatusChange={handleStatusChange}
+                        onCommentAdded={handleCommentAdded}
+                        onCommentDeleted={handleCommentDeleted}
+                      />
+                    ))}
+                  </WeekSection>
+                ))
+              }
             </section>
           );
         })}
@@ -489,10 +455,12 @@ export function IntegrationPlanComponent({ plan, onRefresh, highlightTaskId }: P
         <section style={{ background: "#fff", border: "1px solid #e5e7eb", borderRadius: 12, padding: 20 }}>
           <h3 style={{ fontSize: 15, fontWeight: 600, margin: "0 0 8px" }}>Rendez-vous planifiés</h3>
           {plan.meetings && plan.meetings.length > 0
-            ? null /* mapping meetings ici si besoin */
+            ? null
             : <p style={{ fontSize: 13, color: "#9ca3af", fontStyle: "italic", margin: 0 }}>Aucun rendez-vous planifié.</p>
           }
         </section>
+
+        {avisSection && <div>{avisSection}</div>}
 
         {plan.action_requise && (
           <section style={{ background: "#fff", border: "1px solid #e5e7eb", borderLeft: "3px solid #f59e0b", borderRadius: 12, padding: 20, display: "flex", gap: 12 }}>

@@ -4,7 +4,10 @@ import { useEffect, useRef, useState } from "react";
 import { useParams } from "next/navigation";
 import { CheckCircle, XCircle, Loader2, RotateCcw } from "lucide-react";
 
-const API_BASE = process.env.NEXT_PUBLIC_API_URL ?? "http://localhost:8000/api";
+// ✅ URL publique backend — fonctionne sur mobile (pas localhost)
+const API_BASE = process.env.NEXT_PUBLIC_BACKEND_PUBLIC_URL
+  ? `${process.env.NEXT_PUBLIC_BACKEND_PUBLIC_URL}/api`
+  : (process.env.NEXT_PUBLIC_API_URL ?? "http://localhost:8000/api");
 
 type State = "loading" | "ready" | "success" | "error" | "invalid";
 
@@ -22,12 +25,19 @@ export default function SignaturePage() {
   useEffect(() => {
     const check = async () => {
       try {
-        const res = await fetch(`${API_BASE}/sign/${token}`);
-        if (!res.ok) throw new Error();
+        const url = `${API_BASE}/sign/${token}`;
+        console.log("[SignaturePage] verifierToken →", url);
+        const res = await fetch(url);
+        if (!res.ok) {
+          const body = await res.json().catch(() => ({}));
+          throw new Error(body.message ?? `HTTP ${res.status}`);
+        }
         const data = await res.json();
         setUserName(`${data.user.first_name} ${data.user.last_name}`);
         setState("ready");
-      } catch {
+      } catch (err) {
+        console.error("[SignaturePage] erreur:", err);
+        setErrorMsg(err instanceof Error ? err.message : "Erreur inconnue");
         setState("invalid");
       }
     };
@@ -105,7 +115,9 @@ export default function SignaturePage() {
     setSaving(true);
     try {
       const base64 = canvas.toDataURL("image/png");
-      const res = await fetch(`${API_BASE}/sign/${token}`, {
+      const url = `${API_BASE}/sign/${token}`;
+      console.log("[SignaturePage] enregistrerSignature →", url);
+      const res = await fetch(url, {
         method: "POST",
         headers: { "Content-Type": "application/json" },
         body: JSON.stringify({ signature: base64 }),
@@ -139,6 +151,12 @@ export default function SignaturePage() {
         <p className="text-gray-500 mt-2 text-sm">
           Ce lien de signature est invalide ou a déjà été utilisé.
         </p>
+        {/* ✅ Affiche le vrai message d'erreur pour debug */}
+        {errorMsg && (
+          <p className="text-red-400 mt-3 text-xs bg-red-50 px-4 py-2 rounded-xl">
+            {errorMsg}
+          </p>
+        )}
       </div>
     );
   }

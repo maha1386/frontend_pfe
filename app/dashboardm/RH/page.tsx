@@ -4,7 +4,7 @@ import { useState } from "react";
 import { AlertCircle } from "lucide-react";
 import { useRouter } from "next/navigation";
 
-import { useRhs } from "../../hook/useRhs"; 
+import { useRhs } from "../../hooks/useRhs"; 
 import { RhsToolbar } from "../../../components/Rh/RhsToolbar";
 import { RhsTable } from "../../../components/Rh/RhsTable";
 import { RhsPagination } from "../../../components/Rh/RhsPagination";
@@ -30,18 +30,18 @@ export default function RhPage() {
 
   // Filtrage
   const filtered = rhs.filter((rh) => {
-    const matchSearch =
-      rh.first_name.toLowerCase().includes(search.toLowerCase()) ||
-      rh.last_name.toLowerCase().includes(search.toLowerCase()) ||
-      rh.email.toLowerCase().includes(search.toLowerCase());
+  const matchSearch =
+    (rh.first_name ?? "").toLowerCase().includes(search.toLowerCase()) ||
+    (rh.last_name ?? "").toLowerCase().includes(search.toLowerCase()) ||
+    (rh.email ?? "").toLowerCase().includes(search.toLowerCase());
 
-    const matchStatus =
-      statusFilter === "all" ||
-      (statusFilter === "active" && rh.active) ||
-      (statusFilter === "inactive" && !rh.active);
+  const matchStatus =
+    statusFilter === "all" ||
+    (statusFilter === "active" && rh.active) ||
+    (statusFilter === "inactive" && !rh.active);
 
-    return matchSearch && matchStatus;
-  });
+  return matchSearch && matchStatus;
+});
 
   // Tri
   const sorted = [...filtered].sort((a, b) => {
@@ -76,7 +76,7 @@ export default function RhPage() {
   };
 
   const handleDetails = (rh: RH) => {
-    router.push(`/dashboard/RH/${rh.id}`);
+    router.push(`/dashboardm/RH/${rh.id}`);
   };
 
   return (

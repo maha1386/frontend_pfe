@@ -34,7 +34,7 @@ export default function LoginPage() {
     } else if (role === "rh") {
       router.push("/dashboard");
     } else if (role === "manager") {
-      router.push("/dashboard/manager");
+      router.push("/dashboardm");
     } else {
       router.push("/dashboard");
     }
