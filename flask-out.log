@@ -1,7 +1,9 @@
+📁 Debug YOLO → C:\Users\bourb\OneDrive\Bureau\modelextraction\main\debug_yolo
 🔄 Chargement YOLO...
 ✅ YOLO chargé
 🔄 Chargement PaddleOCR...
 ✅ PaddleOCR chargé
 🚀 Flask CV API → http://127.0.0.1:5000
+📁 Images debug YOLO → C:\Users\bourb\OneDrive\Bureau\modelextraction\main\debug_yolo
  * Serving Flask app 'app'
  * Debug mode: off

@@ -2,10 +2,12 @@
 
 import { useMesSuivis } from "@/app/hooks/useMesSuivis";
 import { useState } from "react";
+import { useRouter } from "next/navigation";
 import {
   ClipboardList, Calendar, MessageSquare,
-  ChevronDown, ChevronUp, User, Loader2
+  ChevronDown, ChevronUp, User, Loader2, ExternalLink
 } from "lucide-react";
+import { SuiviTask } from "@/app/services/suivis.service";
 
 const statusConfig: Record<string, { label: string; className: string }> = {
   pending:       { label: "En attente",    className: "bg-gray-100 text-gray-600" },
@@ -24,9 +26,10 @@ const typeColor: Record<string, string> = {
 
 export default function MesSuivisPage() {
   const { tasks, loading, error } = useMesSuivis();
-  const [expandedId, setExpandedId] = useState<number | null>(null);
-  const [search, setSearch]         = useState("");
+  const [expandedId, setExpandedId]     = useState<number | null>(null);
+  const [search, setSearch]             = useState("");
   const [filterStatus, setFilterStatus] = useState("Tous");
+  const router = useRouter();
 
   const statuses = ["Tous", ...Object.keys(statusConfig)];
 
@@ -36,6 +39,22 @@ export default function MesSuivisPage() {
     const matchStatus = filterStatus === "Tous" || t.status === filterStatus;
     return matchSearch && matchStatus;
   });
+
+  // ✅ Navigation avec ?task= pour le scroll
+  const goToTask = (e: React.MouseEvent, task: SuiviTask) => {
+    e.stopPropagation();
+    try {
+      const user = JSON.parse(localStorage.getItem("user") ?? "{}");
+      const role = user?.role?.name ?? "";
+      if (role === "manager") {
+        router.push(`/dashboardm/onboarding/${task.onboarding_id}?task=${task.id}`);
+      } else {
+        router.push(`/dashboard/onboarding/${task.onboarding_id}?task=${task.id}`);
+      }
+    } catch {
+      router.push(`/dashboard/onboarding/${task.onboarding_id}?task=${task.id}`);
+    }
+  };
 
   if (loading) return (
     <div className="flex items-center justify-center h-64">
@@ -63,7 +82,9 @@ export default function MesSuivisPage() {
         </div>
         <div className="ml-auto text-right">
           <p className="text-3xl font-semibold text-orange-500">{tasks.length}</p>
-          <p className="text-xs text-slate-500">tâche{tasks.length > 1 ? "s" : ""} assignée{tasks.length > 1 ? "s" : ""}</p>
+          <p className="text-xs text-slate-500">
+            tâche{tasks.length > 1 ? "s" : ""} assignée{tasks.length > 1 ? "s" : ""}
+          </p>
         </div>
       </div>
 
@@ -101,8 +122,8 @@ export default function MesSuivisPage() {
       ) : (
         <div className="space-y-3">
           {filtered.map(task => {
-            const isOpen  = expandedId === task.id;
-            const status  = statusConfig[task.status] ?? { label: task.status, className: "bg-gray-100 text-gray-600" };
+            const isOpen   = expandedId === task.id;
+            const status   = statusConfig[task.status] ?? { label: task.status, className: "bg-gray-100 text-gray-600" };
             const dotColor = typeColor[task.type?.toLowerCase()] ?? "bg-blue-500";
 
             return (
@@ -140,6 +161,13 @@ export default function MesSuivisPage() {
                       <MessageSquare size={13} />
                       {task.comments_count}
                     </span>
+                    <button
+                      onClick={(e) => goToTask(e, task)}
+                      className="flex items-center gap-1 px-2.5 py-1 text-xs font-medium text-orange-600 border border-orange-200 rounded-lg hover:bg-orange-50 transition-colors"
+                    >
+                      <ExternalLink size={11} />
+                      Voir
+                    </button>
                     {isOpen
                       ? <ChevronUp size={16} className="text-slate-400" />
                       : <ChevronDown size={16} className="text-slate-400" />
@@ -170,6 +198,17 @@ export default function MesSuivisPage() {
                         ))}
                       </div>
                     )}
+
+                    {/* Lien vers le plan */}
+                    <div className="mt-3 pt-3 border-t border-slate-200 flex justify-end">
+                      <button
+                        onClick={(e) => goToTask(e, task)}
+                        className="flex items-center gap-1.5 px-3 py-1.5 text-xs font-medium text-white bg-orange-500 hover:bg-orange-600 rounded-lg transition-colors"
+                      >
+                        <ExternalLink size={12} />
+                        Ouvrir le plan d'intégration
+                      </button>
+                    </div>
                   </div>
                 )}
 

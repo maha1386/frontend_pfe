@@ -98,24 +98,36 @@ import { RH, RHFilters } from "../types/rh.types"
         const token = localStorage.getItem("token")
         if (!token) throw new Error("Token manquant, veuillez vous reconnecter.")
 
-        const payload: any = {}
+        const payload: Record<string, string> = {}
+        
         if (data.phone_number) payload.phone_number = data.phone_number.trim()
-        if (data.date_of_hire) payload.date_of_hire = formatDateForBackend(data.date_of_hire)
+        
+        if (data.date_of_hire) {
+            // Convertit dd-mm-yyyy OU dd/mm/yyyy → yyyy-MM-dd
+            const parts = data.date_of_hire.split(/[-\/]/)
+            if (parts.length === 3 && parts[0].length === 2) {
+                payload.date_of_hire = `${parts[2]}-${parts[1]}-${parts[0]}`
+            } else {
+                payload.date_of_hire = data.date_of_hire // déjà yyyy-MM-dd
+            }
+        }
+
+        console.log("Payload envoyé:", payload) // ← vérifie dans DevTools
 
         const res = await fetch(`${API_URL}/staff/${id}`, {
-        method: "PATCH",
-        credentials: "include",
-        headers: {
-            "Content-Type": "application/json",
-            Accept: "application/json",
-            Authorization: `Bearer ${token}`,
-        },
-        body: JSON.stringify(payload),
+            method: "PATCH",
+            credentials: "include",
+            headers: {
+                "Content-Type": "application/json",
+                Accept: "application/json",
+                Authorization: `Bearer ${token}`,
+            },
+            body: JSON.stringify(payload),
         })
 
         if (!res.ok) {
-        const text = await res.text()
-        throw new Error("Erreur lors de la modification du RH: " + text)
+            const text = await res.text()
+            throw new Error("Erreur lors de la modification du RH: " + text)
         }
 
         return res.json()

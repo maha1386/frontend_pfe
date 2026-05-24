@@ -1,7 +1,7 @@
 "use client";
 
-import { useState } from "react";
-import { useParams, useRouter } from "next/navigation";
+import { useState, useEffect } from "react";
+import { useParams, useRouter, useSearchParams } from "next/navigation";
 import {
   ArrowLeft, CheckCircle2, Clock, AlertCircle,
   ChevronDown, ChevronUp, UserCircle2,
@@ -9,7 +9,6 @@ import {
 import { useOnboarding } from "../../../hooks/onboarding/useOnboarding2";
 import { Task, TaskType } from "../../../types/onboarding";
 
-// ── Helpers ───────────────────────────────────────────────
 const STATUS_LABEL: Record<string, string> = {
   en_attente:    "En attente",
   en_cours:      "En cours",
@@ -38,16 +37,20 @@ const TYPE_LABEL: Record<TaskType, string> = {
   formation:     "Formation",
 };
 
-// ── TaskCard — lecture seule (pas de boutons edit/delete) ──
 function TaskCard({
   task,
+  highlighted,
 }: {
   task: Task & { responsable?: { first_name: string; last_name: string } };
+  highlighted?: boolean;
 }) {
   return (
-    <div className="flex items-start gap-3 p-4 bg-white border border-gray-100 rounded-xl hover:border-gray-200 transition-colors">
-
-      {/* Icône statut */}
+    <div
+      id={`task-${task.id}`}
+      className={`flex items-start gap-3 p-4 bg-white border rounded-xl hover:border-gray-200 transition-colors ${
+        highlighted ? "border-blue-400 ring-2 ring-blue-300" : "border-gray-100"
+      }`}
+    >
       <div className="mt-0.5 flex-shrink-0">
         {task.status === "termine" ? (
           <CheckCircle2 className="w-5 h-5 text-green-500" />
@@ -57,8 +60,6 @@ function TaskCard({
           <div className="w-5 h-5 rounded-full border-2 border-gray-300" />
         )}
       </div>
-
-      {/* Contenu */}
       <div className="flex-1 min-w-0">
         {task.day_name && (
           <span className="text-xs font-bold uppercase tracking-widest text-blue-600 mb-1 block">
@@ -91,16 +92,21 @@ function TaskCard({
           )}
         </div>
       </div>
-      {/* ❌ Pas de boutons edit/delete */}
     </div>
   );
 }
 
-// ── WeekBlock ─────────────────────────────────────────────
-function WeekBlock({ weekNumber, tasks }: { weekNumber: number; tasks: Task[] }) {
+function WeekBlock({
+  weekNumber,
+  tasks,
+  highlightedTaskId,
+}: {
+  weekNumber: number;
+  tasks: Task[];
+  highlightedTaskId?: number | null;
+}) {
   const [open, setOpen] = useState(true);
   const done = tasks.filter((t) => t.status === "termine").length;
-
   const sorted = [...tasks].sort(
     (a, b) => new Date(a.deadline ?? 0).getTime() - new Date(b.deadline ?? 0).getTime()
   );
@@ -119,22 +125,41 @@ function WeekBlock({ weekNumber, tasks }: { weekNumber: number; tasks: Task[] })
       </button>
       {open && (
         <div className="p-3 space-y-2">
-          {sorted.map((t) => <TaskCard key={t.id} task={t} />)}
+          {sorted.map((t) => (
+            <TaskCard
+              key={t.id}
+              task={t}
+              highlighted={t.id === highlightedTaskId}
+            />
+          ))}
         </div>
       )}
     </div>
   );
 }
 
-// ── Page principale ───────────────────────────────────────
 export default function ManagerOnboardingDetailPage() {
-  const { id } = useParams();
-  const router  = useRouter();
+  const { id }          = useParams();
+  const router          = useRouter();
+  const searchParams    = useSearchParams();
+  const taskIdParam     = searchParams.get("task");
+  const highlightedTaskId = taskIdParam ? Number(taskIdParam) : null;
 
   const { onboarding, progression, loading, error } = useOnboarding(Number(id));
-  // ❌ On ne destructure pas valider/updateTask/deleteTask
-
   const [expandedMonths, setExpandedMonths] = useState<Record<number, boolean>>({ 1: true });
+
+  // ✅ Ouvre le bon mois et scrolle vers la tâche
+  useEffect(() => {
+    if (!highlightedTaskId || !onboarding) return;
+    const task = onboarding.tasks.find((t) => t.id === highlightedTaskId);
+    if (task) {
+      setExpandedMonths((prev) => ({ ...prev, [task.month_number]: true }));
+      setTimeout(() => {
+        const el = document.getElementById(`task-${highlightedTaskId}`);
+        if (el) el.scrollIntoView({ behavior: "smooth", block: "center" });
+      }, 300);
+    }
+  }, [highlightedTaskId, onboarding]);
 
   if (loading) {
     return (
@@ -169,7 +194,7 @@ export default function ManagerOnboardingDetailPage() {
   return (
     <div className="space-y-6">
 
-      {/* ── Header ── */}
+      {/* Header */}
       <div className="space-y-3">
         <div className="flex items-center gap-3">
           <button onClick={() => router.back()} className="p-2 hover:bg-gray-100 rounded-xl transition-colors">
@@ -182,19 +207,16 @@ export default function ManagerOnboardingDetailPage() {
             <p className="text-gray-500 mt-1">Plan d'intégration</p>
           </div>
         </div>
-
-        {/* Statut — lecture seule, pas de bouton valider */}
         <div className="flex items-center gap-3">
           <span className={`px-3 py-1.5 rounded-full text-xs font-medium ${
             onboarding.status === "valide" ? "bg-green-100 text-green-700" : "bg-amber-100 text-amber-700"
           }`}>
             {onboarding.status === "valide" ? "✓ Validé" : "En attente de validation"}
           </span>
-          {/* ❌ Pas de bouton "Valider l'onboarding" */}
         </div>
       </div>
 
-      {/* ── Progression ── */}
+      {/* Progression */}
       <div className="bg-white rounded-2xl border border-gray-100 p-5">
         <div className="flex items-center justify-between mb-3">
           <span className="text-sm font-medium text-gray-700">Progression globale</span>
@@ -211,7 +233,7 @@ export default function ManagerOnboardingDetailPage() {
         )}
       </div>
 
-      {/* ── Mois → Semaines → Tâches ── */}
+      {/* Mois → Semaines → Tâches */}
       <div className="space-y-4">
         {Object.entries(grouped)
           .sort(([a], [b]) => Number(a) - Number(b))
@@ -268,7 +290,12 @@ export default function ManagerOnboardingDetailPage() {
                     {Object.entries(weeks)
                       .sort(([a], [b]) => Number(a) - Number(b))
                       .map(([weekStr, tasks]) => (
-                        <WeekBlock key={weekStr} weekNumber={Number(weekStr)} tasks={tasks} />
+                        <WeekBlock
+                          key={weekStr}
+                          weekNumber={Number(weekStr)}
+                          tasks={tasks}
+                          highlightedTaskId={highlightedTaskId}
+                        />
                       ))}
                   </div>
                 )}
@@ -276,7 +303,6 @@ export default function ManagerOnboardingDetailPage() {
             );
           })}
       </div>
-      {/* ❌ Pas de modal EditTask, pas de modal Validation */}
     </div>
   );
 }

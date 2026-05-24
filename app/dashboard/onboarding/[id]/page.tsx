@@ -1,7 +1,7 @@
 "use client";
 
 import { useState, useEffect } from "react";
-import { useParams, useRouter } from "next/navigation";
+import { useParams, useRouter, useSearchParams } from "next/navigation";
 import {
   ArrowLeft, CheckCircle2, Clock, AlertCircle,
   ChevronDown, ChevronUp, Pencil, Trash2, UserCircle2, Plus,
@@ -189,20 +189,24 @@ function EditTaskModal({
 }
 
 // ── TaskCard ──────────────────────────────────────────────
-// Identique à la vue collaborateur avec boutons edit/delete en plus
 function TaskCard({
   task,
   onEdit,
   onDelete,
+  highlighted,
 }: {
   task: Task & { responsable_id?: number | null; responsable?: { first_name: string; last_name: string } };
-  onEdit:   (task: Task) => void;
-  onDelete: (taskId: number) => void;
+  onEdit:      (task: Task) => void;
+  onDelete:    (taskId: number) => void;
+  highlighted?: boolean;
 }) {
   return (
-    <div className="flex items-start gap-3 p-4 bg-white border border-gray-100 rounded-xl hover:border-gray-200 transition-colors group">
-
-      {/* Icône statut */}
+    <div
+      id={`task-${task.id}`}
+      className={`flex items-start gap-3 p-4 bg-white border rounded-xl hover:border-gray-200 transition-colors group ${
+        highlighted ? "border-blue-400 ring-2 ring-blue-300" : "border-gray-100"
+      }`}
+    >
       <div className="mt-0.5 flex-shrink-0">
         {task.status === "termine" ? (
           <CheckCircle2 className="w-5 h-5 text-green-500" />
@@ -212,9 +216,7 @@ function TaskCard({
           <div className="w-5 h-5 rounded-full border-2 border-gray-300" />
         )}
       </div>
-
-      {/* Contenu */}
-     <div className="flex-1 min-w-0">
+      <div className="flex-1 min-w-0">
         {task.day_name && (
           <span className="text-xs font-bold uppercase tracking-widest text-blue-600 mb-1 block">
             {task.day_name.charAt(0).toUpperCase() + task.day_name.slice(1).toLowerCase()}
@@ -223,27 +225,21 @@ function TaskCard({
         <p className={`text-sm font-medium ${task.status === "termine" ? "line-through text-gray-400" : "text-gray-800"}`}>
           {task.task_title}
         </p>
-
         {task.objective && (
           <p className="text-xs text-gray-400 mt-0.5">{task.objective}</p>
         )}
-
-        {/* Badges ligne */}
         <div className="flex items-center gap-2 mt-2 flex-wrap">
           <span className={`text-xs px-2 py-0.5 rounded-full font-medium ${STATUS_CLASS[task.status] ?? "bg-gray-100 text-gray-600"}`}>
             {STATUS_LABEL[task.status] ?? task.status}
           </span>
-
           <span className={`text-xs px-2 py-0.5 rounded-full font-medium ${TYPE_CLASS[task.type]}`}>
             {TYPE_LABEL[task.type]}
           </span>
-
           {task.deadline && (
             <span className="text-xs text-gray-400">
               {new Date(task.deadline).toLocaleDateString("fr-FR")}
             </span>
           )}
-
           {task.responsable && (
             <span className="flex items-center gap-1 text-xs text-gray-500 bg-gray-50 border border-gray-100 px-2 py-0.5 rounded-full">
               <UserCircle2 className="w-3 h-3 text-blue-400 flex-shrink-0" />
@@ -252,8 +248,6 @@ function TaskCard({
           )}
         </div>
       </div>
-
-      {/* Actions edit/delete */}
       <div className="flex gap-1 opacity-0 group-hover:opacity-100 transition-opacity flex-shrink-0">
         <button onClick={() => onEdit(task)}
           className="p-1.5 hover:bg-blue-50 rounded-lg text-gray-400 hover:text-blue-600 transition-colors">
@@ -274,15 +268,16 @@ function WeekBlock({
   tasks,
   onEdit,
   onDelete,
+  highlightedTaskId,
 }: {
   weekNumber: number;
   tasks:      Task[];
   onEdit:     (task: Task) => void;
   onDelete:   (id: number) => void;
+  highlightedTaskId?: number | null;
 }) {
   const [open, setOpen] = useState(true);
   const done = tasks.filter((t) => t.status === "termine").length;
-
   const sorted = [...tasks].sort(
     (a, b) => new Date(a.deadline ?? 0).getTime() - new Date(b.deadline ?? 0).getTime()
   );
@@ -299,11 +294,16 @@ function WeekBlock({
         </div>
         {open ? <ChevronUp className="w-4 h-4 text-gray-400" /> : <ChevronDown className="w-4 h-4 text-gray-400" />}
       </button>
-
       {open && (
         <div className="p-3 space-y-2">
           {sorted.map((t) => (
-            <TaskCard key={t.id} task={t} onEdit={onEdit} onDelete={onDelete} />
+            <TaskCard
+              key={t.id}
+              task={t}
+              onEdit={onEdit}
+              onDelete={onDelete}
+              highlighted={t.id === highlightedTaskId}
+            />
           ))}
         </div>
       )}
@@ -313,8 +313,12 @@ function WeekBlock({
 
 // ── Page principale ───────────────────────────────────────
 export default function OnboardingDetailPage() {
-  const { id } = useParams();
-  const router  = useRouter();
+  const { id }       = useParams();
+  const router       = useRouter();
+  const searchParams = useSearchParams();
+
+  const taskIdParam       = searchParams.get("task");
+  const highlightedTaskId = taskIdParam ? Number(taskIdParam) : null;
 
   const { onboarding, progression, loading, error, valider, updateTask, deleteTask } =
     useOnboarding(Number(id));
@@ -324,6 +328,19 @@ export default function OnboardingDetailPage() {
   const [validNotes, setValidNotes]         = useState("");
   const [showValidModal, setShowValidModal] = useState(false);
   const [expandedMonths, setExpandedMonths] = useState<Record<number, boolean>>({ 1: true });
+
+  // ✅ Ouvre le bon mois et scrolle vers la tâche
+  useEffect(() => {
+    if (!highlightedTaskId || !onboarding) return;
+    const task = onboarding.tasks.find((t) => t.id === highlightedTaskId);
+    if (task) {
+      setExpandedMonths((prev) => ({ ...prev, [task.month_number]: true }));
+      setTimeout(() => {
+        const el = document.getElementById(`task-${highlightedTaskId}`);
+        if (el) el.scrollIntoView({ behavior: "smooth", block: "center" });
+      }, 300);
+    }
+  }, [highlightedTaskId, onboarding]);
 
   if (loading) {
     return (
@@ -342,7 +359,6 @@ export default function OnboardingDetailPage() {
     );
   }
 
-  // Grouper mois → semaine
   const grouped = onboarding.tasks.reduce<Record<number, Record<number, Task[]>>>(
     (acc, task) => {
       if (!acc[task.month_number]) acc[task.month_number] = {};
@@ -371,7 +387,7 @@ export default function OnboardingDetailPage() {
   return (
     <div className="space-y-6">
 
-      {/* ── Header ── */}
+      {/* Header */}
       <div className="space-y-3">
         <div className="flex items-center gap-3">
           <button onClick={() => router.back()} className="p-2 hover:bg-gray-100 rounded-xl transition-colors">
@@ -384,7 +400,6 @@ export default function OnboardingDetailPage() {
             <p className="text-gray-500 mt-1">Plan d'intégration</p>
           </div>
         </div>
-
         <div className="flex items-center gap-3">
           <span className={`px-3 py-1.5 rounded-full text-xs font-medium ${
             onboarding.status === "valide" ? "bg-green-100 text-green-700" : "bg-amber-100 text-amber-700"
@@ -399,7 +414,7 @@ export default function OnboardingDetailPage() {
         </div>
       </div>
 
-      {/* ── Progression ── */}
+      {/* Progression */}
       <div className="bg-white rounded-2xl border border-gray-100 p-5">
         <div className="flex items-center justify-between mb-3">
           <span className="text-sm font-medium text-gray-700">Progression globale</span>
@@ -416,7 +431,7 @@ export default function OnboardingDetailPage() {
         )}
       </div>
 
-      {/* ── Mois → Semaines → Tâches ── */}
+      {/* Mois → Semaines → Tâches */}
       <div className="space-y-4">
         {Object.entries(grouped)
           .sort(([a], [b]) => Number(a) - Number(b))
@@ -427,16 +442,13 @@ export default function OnboardingDetailPage() {
             const pct      = allTasks.length ? Math.round((done / allTasks.length) * 100) : 0;
             const isOpen   = expandedMonths[month] ?? false;
 
-            // Dates min/max du mois
-            const dates = allTasks.map((t) => t.deadline).filter(Boolean) as string[];
+            const dates   = allTasks.map((t) => t.deadline).filter(Boolean) as string[];
             const minDate = dates.length ? new Date(Math.min(...dates.map((d) => new Date(d).getTime()))) : null;
             const maxDate = dates.length ? new Date(Math.max(...dates.map((d) => new Date(d).getTime()))) : null;
             const fmtDate = (d: Date) => d.toLocaleDateString("fr-FR", { day: "numeric", month: "short", year: "numeric" });
 
             return (
               <div key={month} className="bg-white rounded-2xl border border-gray-100 overflow-hidden">
-
-                {/* Header mois — même style que vue collaborateur */}
                 <button
                   onClick={() => toggleMonth(month)}
                   className="w-full flex items-center justify-between px-5 py-4 hover:bg-gray-50 transition-colors"
@@ -448,7 +460,6 @@ export default function OnboardingDetailPage() {
                     <div className="text-left">
                       <div className="flex items-center gap-2">
                         <p className="font-semibold text-gray-800">Mois {month}</p>
-                        {/* Badge statut mois */}
                         <span className={`text-xs px-2 py-0.5 rounded-full font-medium ${
                           pct === 100 ? "bg-green-100 text-green-700" :
                           pct > 0    ? "bg-blue-100 text-blue-700"   :
@@ -458,14 +469,11 @@ export default function OnboardingDetailPage() {
                         </span>
                       </div>
                       {minDate && maxDate && (
-                        <p className="text-xs text-gray-400 mt-0.5">
-                          {fmtDate(minDate)} — {fmtDate(maxDate)}
-                        </p>
+                        <p className="text-xs text-gray-400 mt-0.5">{fmtDate(minDate)} — {fmtDate(maxDate)}</p>
                       )}
                       <p className="text-xs text-gray-400">{done}/{allTasks.length} tâches terminées</p>
                     </div>
                   </div>
-
                   <div className="flex items-center gap-3">
                     <span className="text-lg font-bold text-blue-600">{pct}%</span>
                     <div className="w-24 h-1.5 bg-gray-100 rounded-full overflow-hidden">
@@ -486,6 +494,7 @@ export default function OnboardingDetailPage() {
                           tasks={tasks}
                           onEdit={setEditTask}
                           onDelete={(taskId) => deleteTask(taskId)}
+                          highlightedTaskId={highlightedTaskId}
                         />
                       ))}
                   </div>
@@ -495,7 +504,7 @@ export default function OnboardingDetailPage() {
           })}
       </div>
 
-      {/* ── Modal modifier tâche ── */}
+      {/* Modal modifier tâche */}
       {editTask && (
         <EditTaskModal
           task={editTask}
@@ -510,7 +519,7 @@ export default function OnboardingDetailPage() {
         />
       )}
 
-      {/* ── Modal validation ── */}
+      {/* Modal validation */}
       {showValidModal && (
         <div className="fixed inset-0 z-50 flex items-center justify-center bg-black/40 p-4">
           <div className="bg-white rounded-2xl shadow-xl w-full max-w-md p-6 space-y-4 max-h-[90vh] overflow-y-auto">

@@ -10,7 +10,7 @@ export default function MessagesManagerPage() {
         </p>
       </div>
       <div className="flex-1 min-h-0 px-8 pb-8">
-        <MessagingInbox isRH={false} />
+        <MessagingInbox isRH={true} />
       </div>
     </div>
   );
