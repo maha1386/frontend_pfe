@@ -99,9 +99,7 @@ export function useCollaborateurs() {
     }
   };
 
-  const handleToggleActive = async (id: number, isActive: boolean) => {
-    const label = isActive ? "désactiver" : "activer";
-    if (!confirm(`Voulez-vous vraiment ${label} ce collaborateur ?`)) return;
+  const handleToggleActive = async (id: number) => {
     try {
       await toggleCollaborateurActive(id);
       await fetchCollaborateurs();

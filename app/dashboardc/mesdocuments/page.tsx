@@ -21,6 +21,8 @@ export default function MesDocumentsPage() {
 
   const [filterStatus, setFilterStatus] = useState<string | null>(null);
   const [sortDirection, setSortDirection] = useState<"asc" | "desc">("desc");
+  const [successModal, setSuccessModal] = useState<{ open: boolean; docName: string }>({ open: false, docName: "" });
+  const [errorModal, setErrorModal]     = useState<{ open: boolean; message: string }>({ open: false, message: "" });
 
   function getDocumentStatus(doc: Document) {
     if (!doc.signature_req) return "À lire";
@@ -76,11 +78,10 @@ export default function MesDocumentsPage() {
   const handleSign = async (doc: Document) => {
     try {
       await documentService.signerDocument(doc.id);
-      alert(`Document "${doc.namedoc}" signé avec succès !`);
+      setSuccessModal({ open: true, docName: doc.namedoc });
       await refresh();
     } catch (err: any) {
-      alert(err.message || "Erreur lors de la signature");
-      console.error("Erreur signature document :", err);
+      setErrorModal({ open: true, message: err.message || "Erreur lors de la signature" });
     }
   };
 
@@ -167,6 +168,56 @@ export default function MesDocumentsPage() {
               )}
             </div>
 
+          </div>
+        </div>
+      )}
+      {/* Modal succès signature */}
+      {successModal.open && (
+        <div className="fixed inset-0 z-50 flex items-center justify-center bg-black/50 backdrop-blur-sm">
+          <div className="bg-white rounded-2xl shadow-2xl w-full max-w-md mx-4 overflow-hidden animate-in fade-in zoom-in duration-200">
+            <div className="bg-gradient-to-br from-green-400 to-emerald-500 p-6 flex flex-col items-center">
+              <div className="w-16 h-16 bg-white/20 rounded-full flex items-center justify-center mb-3">
+                <svg className="w-9 h-9 text-white" fill="none" viewBox="0 0 24 24" stroke="currentColor" strokeWidth={2.5}>
+                  <path strokeLinecap="round" strokeLinejoin="round" d="M5 13l4 4L19 7" />
+                </svg>
+              </div>
+              <h2 className="text-white text-xl font-bold">Document signé !</h2>
+            </div>
+            <div className="p-6 text-center">
+              <p className="text-gray-600 text-sm mb-1">Le document</p>
+              <p className="text-gray-900 font-semibold text-base mb-4">« {successModal.docName} »</p>
+              <p className="text-gray-500 text-sm mb-6">a été signé avec succès. Le RH a été notifié.</p>
+              <button
+                onClick={() => setSuccessModal({ open: false, docName: "" })}
+                className="w-full bg-gradient-to-r from-green-500 to-emerald-500 hover:from-green-600 hover:to-emerald-600 text-white font-semibold py-2.5 rounded-xl transition-all"
+              >
+                Parfait !
+              </button>
+            </div>
+          </div>
+        </div>
+      )}
+      {/*  Modal erreur signature */}
+      {errorModal.open && (
+        <div className="fixed inset-0 z-50 flex items-center justify-center bg-black/50 backdrop-blur-sm">
+          <div className="bg-white rounded-2xl shadow-2xl w-full max-w-md mx-4 overflow-hidden">
+            <div className="bg-gradient-to-br from-red-400 to-rose-500 p-6 flex flex-col items-center">
+              <div className="w-16 h-16 bg-white/20 rounded-full flex items-center justify-center mb-3">
+                <svg className="w-9 h-9 text-white" fill="none" viewBox="0 0 24 24" stroke="currentColor" strokeWidth={2.5}>
+                  <path strokeLinecap="round" strokeLinejoin="round" d="M6 18L18 6M6 6l12 12" />
+                </svg>
+              </div>
+              <h2 className="text-white text-xl font-bold">Erreur</h2>
+            </div>
+            <div className="p-6 text-center">
+              <p className="text-gray-700 text-sm mb-6">{errorModal.message}</p>
+              <button
+                onClick={() => setErrorModal({ open: false, message: "" })}
+                className="w-full bg-gradient-to-r from-red-500 to-rose-500 hover:from-red-600 hover:to-rose-600 text-white font-semibold py-2.5 rounded-xl transition-all"
+              >
+                Fermer
+              </button>
+            </div>
           </div>
         </div>
       )}

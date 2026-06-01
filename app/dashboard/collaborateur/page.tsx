@@ -15,6 +15,8 @@ import { useRouter } from "next/navigation";
 export default function CollaborateursPage() {
   const [isModalOpen, setIsModalOpen] = useState(false);
   const [collaborateurToModify, setCollaborateurToModify] = useState<CollaborateurDetail | null>(null);
+  const [confirmModal, setConfirmModal] = useState<{ id: number; isActive: boolean } | null>(null);
+
 
   const {
     filtered, pagination, loading, error,
@@ -72,7 +74,7 @@ export default function CollaborateursPage() {
         sortField={sortField}
         sortDir={sortDir}
         onSort={handleSort}
-        onToggleActive={handleToggleActive}
+        onToggleActive={(id, isActive) => setConfirmModal({ id, isActive })}
         onModifier={handleModifier}
         onDetails={handleDetails}
       />
@@ -96,6 +98,33 @@ export default function CollaborateursPage() {
         onClose={() => setCollaborateurToModify(null)}
         onSuccess={() => { setCollaborateurToModify(null); fetchCollaborateurs(); }}
       />
+      {confirmModal && (
+        <div className="fixed inset-0 bg-black/50 flex items-center justify-center z-50">
+          <div className="bg-white rounded-2xl p-6 w-full max-w-sm shadow-xl">
+            <h2 className="text-lg font-semibold text-gray-800 mb-2">Confirmation</h2>
+            <p className="text-gray-500 text-sm mb-6">
+              Voulez-vous vraiment {confirmModal.isActive ? "désactiver" : "activer"} ce collaborateur ?
+            </p>
+            <div className="flex gap-3 justify-end">
+              <button
+                onClick={() => setConfirmModal(null)}
+                className="px-4 py-2 rounded-lg border border-gray-200 text-gray-600 hover:bg-gray-50 text-sm"
+              >
+                Annuler
+              </button>
+              <button
+                onClick={async () => {
+                  await handleToggleActive(confirmModal.id);
+                  setConfirmModal(null);
+                }}
+                className="px-4 py-2 rounded-lg bg-red-500 text-white hover:bg-red-600 text-sm"
+              >
+                Confirmer
+              </button>
+            </div>
+          </div>
+        </div>
+      )}
     </div>
   );
 }

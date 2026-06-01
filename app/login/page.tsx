@@ -132,7 +132,7 @@ export default function LoginPage() {
     if (res.ok) {
       console.log("=== USER FROM LOGIN ===", data.user);
       console.log("=== ROLE (login) ===", data.user?.role);
-      console.log("cv_data brut reçu :", JSON.stringify(data.user.cv_data)); // ← ICI
+      console.log("cv_data brut reçu :", JSON.stringify(data.user.cv_data)); 
       redirectAfterLogin(data);
     } else {
       setLoginMessage(data.message || "Email ou mot de passe incorrect");
@@ -237,7 +237,6 @@ export default function LoginPage() {
               : freshUser.role?.name;
 
           localStorage.setItem("role", role ?? "");
-
           redirectByRole(role, freshUser.signature_path, freshUser.cv_data);
         } else {
           setMsg(data.message || "Erreur lors du changement");

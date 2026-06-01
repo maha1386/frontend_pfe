@@ -15,7 +15,7 @@ export function useOnboarding(id: number) {
     Authorization: `Bearer ${localStorage.getItem('token')}`,
   });
 
-  // ── Fetch détail ─────────────────────────────────────
+  // Fetch détail
   const fetchOnboarding = useCallback(async () => {
     try {
       setLoading(true);
@@ -41,7 +41,7 @@ export function useOnboarding(id: number) {
     fetchOnboarding();
   }, [fetchOnboarding]);
 
-  // ── Valider l'onboarding ──────────────────────────────
+  // Valider l'onboarding
   const valider = async (notes?: string) => {
     const res = await fetch(`${apiUrl}/onboarding/${id}/valider`, {
       method: 'PATCH',
@@ -53,7 +53,7 @@ export function useOnboarding(id: number) {
     await fetchOnboarding();
   };
 
-  // ── Modifier une tâche ────────────────────────────────
+  // Modifier une tâche
   const updateTask = async (taskId: number, payload: UpdateTaskPayload) => {
     const res = await fetch(`${apiUrl}/onboarding/tasks/${taskId}`, {
       method: 'PATCH',
@@ -65,7 +65,7 @@ export function useOnboarding(id: number) {
     await fetchOnboarding();
   };
 
-  // ── Ajouter une tâche ─────────────────────────────────
+  // Ajouter une tâche
   const addTask = async (payload: AddTaskPayload) => {
     const res = await fetch(`${apiUrl}/onboarding/${id}/tasks`, {
       method: 'POST',
@@ -77,7 +77,7 @@ export function useOnboarding(id: number) {
     await fetchOnboarding();
   };
 
-  // ── Supprimer une tâche ───────────────────────────────
+  // Supprimer une tâche
   const deleteTask = async (taskId: number) => {
     const res = await fetch(`${apiUrl}/onboarding/tasks/${taskId}`, {
       method: 'DELETE',

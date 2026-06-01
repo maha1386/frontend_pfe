@@ -110,7 +110,7 @@ export function DocumentCreateModal({ isOpen, onClose, onCreate }: DocumentCreat
             <p className="text-sm font-medium text-gray-700 mb-1">
               Glissez-déposez un fichier ici ou cliquez pour parcourir
             </p>
-            <p className="text-xs text-gray-500">PDF (max. 10 MB)</p>
+            <p className="text-xs text-gray-500">PDF (max. 100 MB)</p>
             <input
               type="file"
               accept=".pdf"

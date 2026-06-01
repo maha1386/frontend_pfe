@@ -57,7 +57,7 @@ export default function CollaborateurSetupPage() {
           localStorage.setItem("user", JSON.stringify(user));
 
           setStatus("done");
-          // ✅ Redirection vers upload CV après signature
+          //  Redirection vers upload CV après signature
           setTimeout(() => router.push("/collaborateur/cv"), 2000);
         }
       } catch {}
@@ -116,7 +116,7 @@ export default function CollaborateurSetupPage() {
       <div className="bg-white rounded-2xl shadow-xl p-10 text-center max-w-sm w-full">
         <CheckCircle className="w-16 h-16 text-emerald-500 mx-auto mb-4" />
         <h2 className="text-xl font-bold text-gray-800">Signature enregistrée !</h2>
-        {/* ✅ Message mis à jour */}
+        {/* Message mis à jour */}
         <p className="text-gray-500 mt-2 text-sm">Redirection vers l'upload de votre CV...</p>
       </div>
     </div>

@@ -1,4 +1,3 @@
-// app/dashboard/roles/page.tsx
 "use client";
 
 import { useState } from "react";
@@ -9,7 +8,17 @@ import { RoleModal } from "../../../components/roles/role-modal";
 import { Role } from "../../services/role.service";
 
 export default function RolesPage() {
-  const { roles, loading, error, fetchRoles, handleDelete } = useRoles();
+  const {
+    roles,
+    loading,
+    error,
+    fetchRoles,
+    handleDelete,
+    confirmModal,
+    setConfirmModal,
+    handleConfirmDelete,
+  } = useRoles();
+
   const [isModalOpen, setIsModalOpen] = useState(false);
   const [roleToEdit, setRoleToEdit] = useState<Role | null>(null);
 
@@ -30,6 +39,7 @@ export default function RolesPage() {
 
   return (
     <div className="space-y-6">
+
       {/* Titre */}
       <div className="flex items-center justify-between">
         <div>
@@ -92,13 +102,44 @@ export default function RolesPage() {
         onDelete={handleDelete}
       />
 
+      {/* Modale confirmation suppression */}
+      {confirmModal && (
+        <div className="fixed inset-0 bg-black/50 flex items-center justify-center z-50">
+          <div className="bg-white rounded-2xl p-6 w-full max-w-sm shadow-xl">
+            <h2 className="text-lg font-semibold text-gray-800 mb-2">Confirmation</h2>
+            <p className="text-gray-500 text-sm mb-6">
+              Voulez-vous vraiment supprimer le rôle{" "}
+              <span className="font-medium text-gray-700">"{confirmModal.name}"</span> ?
+            </p>
+            <div className="flex gap-3 justify-end">
+              <button
+                onClick={() => setConfirmModal(null)}
+                className="px-4 py-2 rounded-lg border border-gray-200 text-gray-600 hover:bg-gray-50 text-sm"
+              >
+                Annuler
+              </button>
+              <button
+                onClick={handleConfirmDelete}
+                className="px-4 py-2 rounded-lg bg-red-500 text-white hover:bg-red-600 text-sm"
+              >
+                Supprimer
+              </button>
+            </div>
+          </div>
+        </div>
+      )}
+
       {/* Modal créer/modifier */}
       <RoleModal
         isOpen={isModalOpen}
         roleToEdit={roleToEdit}
         onClose={handleClose}
-        onSuccess={() => { handleClose(); fetchRoles(); }}
+        onSuccess={() => {
+          handleClose();
+          fetchRoles();
+        }}
       />
+
     </div>
   );
 }

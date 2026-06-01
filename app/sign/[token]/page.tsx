@@ -151,7 +151,7 @@ export default function SignaturePage() {
         <p className="text-gray-500 mt-2 text-sm">
           Ce lien de signature est invalide ou a déjà été utilisé.
         </p>
-        {/* ✅ Affiche le vrai message d'erreur pour debug */}
+        {/* Affiche le vrai message d'erreur pour debug */}
         {errorMsg && (
           <p className="text-red-400 mt-3 text-xs bg-red-50 px-4 py-2 rounded-xl">
             {errorMsg}

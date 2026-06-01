@@ -63,7 +63,7 @@ export function HeaderFinal({ onMenuToggle }: HeaderProps) {
         });
         if (res.ok) {
           const data = await res.json();
-          // ✅ merge role depuis localStorage si API ne le retourne pas
+          // merge role depuis localStorage si API ne le retourne pas
           if (!data.role) {
             const cached = JSON.parse(localStorage.getItem("user") ?? "{}");
             data.role = cached.role;
@@ -110,6 +110,8 @@ export function HeaderFinal({ onMenuToggle }: HeaderProps) {
     if (type === "task_en_validation") return "📋";
     if (type === "task_rejected")      return "❌";
     if (type === "new_message")        return "💬";
+    if (type === "document_assigne")   return "📄";
+    if (type === "document_signe")     return "✅";
     return "🔔";
   };
 
