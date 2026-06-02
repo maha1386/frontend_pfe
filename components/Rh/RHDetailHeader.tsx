@@ -1,10 +1,10 @@
-"use client";
+﻿"use client";
 
 import { Edit2, PowerOff, ArrowLeft, Mail, Phone, Calendar } from "lucide-react";
 import { useRouter } from "next/navigation";
 import { RH } from "../../app/types/rh.types";
 import { formatDate } from "../../app/lib/utils";
-import { rhService } from "@/app/service/rh.service";
+import { rhService } from "../../app/services/rh.service";
 import { useState } from "react";
 
 interface RHDetailHeaderProps {

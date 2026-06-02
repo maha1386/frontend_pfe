@@ -1,10 +1,10 @@
-// components/Document/DocumentCreateModal.tsx
+﻿// components/Document/DocumentCreateModal.tsx
 "use client";
 
 import { X, Upload, Save } from "lucide-react";
 import React, { useState } from "react";
 import { MultiSelectCollaborateurs } from "./MultiSelectCollaborateurs";
-import { CollaborateurOption } from "../../app/hook/use-collaborateurs-search";
+import { CollaborateurOption } from "../../app/hooks/use-collaborateurs-search";
 
 interface DocumentCreateModalProps {
   isOpen: boolean;
@@ -110,7 +110,7 @@ export function DocumentCreateModal({ isOpen, onClose, onCreate }: DocumentCreat
             <p className="text-sm font-medium text-gray-700 mb-1">
               Glissez-déposez un fichier ici ou cliquez pour parcourir
             </p>
-            <p className="text-xs text-gray-500">PDF (max. 10 MB)</p>
+            <p className="text-xs text-gray-500">PDF (max. 100 MB)</p>
             <input
               type="file"
               accept=".pdf"

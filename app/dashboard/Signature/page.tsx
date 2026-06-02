@@ -3,7 +3,7 @@
 import { useEffect, useRef, useState } from "react";
 import { useParams } from "next/navigation";
 import { CheckCircle, XCircle, Loader2, RotateCcw } from "lucide-react";
-import { verifierToken, enregistrerSignature } from "../../service/signature.service";
+import { verifierToken, enregistrerSignature } from "../../services/signature.service";
 
 type State = "loading" | "ready" | "success" | "error" | "invalid";
 

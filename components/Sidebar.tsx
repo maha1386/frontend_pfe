@@ -3,25 +3,27 @@
 import {
   FileText,
   Home,
-  BarChart3,
-  Settings,
   CalendarCheck,
   BookOpen,
+  ClipboardList,
+  Lock,
+  LucideIcon,
+  UserCircle,
 } from "lucide-react";
 import Link from "next/link";
 import { usePathname } from "next/navigation";
+import { useMesSuivisCount } from "@/app/hooks/useMesSuivisCount";
 
 interface SidebarProps {
   isOpen: boolean;
 }
 
 interface MenuItem {
-  icon: React.ForwardRefExoticComponent<
-    Omit<React.SVGProps<SVGSVGElement>, "ref"> & React.RefAttributes<SVGSVGElement>
-  >;
+  icon: LucideIcon;
   label: string;
   href: string;
   badge?: string;
+  disabled?: boolean;
 }
 
 interface MenuSection {
@@ -31,20 +33,26 @@ interface MenuSection {
 
 export function SidebarCollaborateur({ isOpen }: SidebarProps) {
   const pathname = usePathname();
+  const { hasTask } = useMesSuivisCount();
 
   const menuCollaborateur: MenuSection[] = [
     {
       title: "PRINCIPAL",
       items: [
-        { icon: Home, label: "Tableau de bord", href: "/dashboardc/dashboardcollab" },
-        { icon: FileText, label: "Mes documents", href: "/dashboardc/mesdocuments" },
+        { icon: Home,     label: "Tableau de bord", href: "/dashboardc" },
+        { icon: FileText, label: "Mes documents",   href: "/dashboardc/mesdocuments" },
       ],
     },
     {
       title: "SYSTÈME",
       items: [
-        { icon: BookOpen, label: "Formations", href: "/dashboardc/formation" },
-        { icon: CalendarCheck, label: "Paramètres", href: "/dashboardc/integration" },
+        { icon: ClipboardList, label: "Plan d'intégration", href: "/dashboardc/integration" },
+        { icon: BookOpen,      label: "Formations",          href: "/dashboardc/formation" },
+        { icon: ClipboardList, label: "Mes Suivis", href: "/dashboardc/suivis", disabled: !hasTask },
+        //{ icon: CalendarCheck, label: "Paramètres", href: "/dashboardc/parametres" },
+        { icon: UserCircle, label: "Mon profil", href: "/dashboardc/profil" },
+
+
       ],
     },
   ];
@@ -64,31 +72,46 @@ export function SidebarCollaborateur({ isOpen }: SidebarProps) {
 
             <ul className="space-y-1">
               {section.items.map((item, index) => {
-                const Icon = item.icon;
+                const Icon     = item.icon;
                 const isActive = pathname === item.href;
+                const disabled = !!item.disabled;
 
                 return (
                   <li key={index}>
-                    <Link
-                      href={item.href}
-                      className={`w-full flex items-center gap-3 px-4 py-3 rounded-xl transition-all text-left relative overflow-hidden ${
-                        isActive
-                          ? "bg-gradient-to-r from-orange-500 to-red-600 text-white shadow-lg shadow-orange-500/30"
-                          : "text-gray-600 hover:bg-gray-50 hover:text-gray-900"
-                      }`}
-                    >
-                      <Icon className="w-5 h-5 flex-shrink-0" />
-
-                      <span className="text-sm font-medium whitespace-nowrap opacity-0 group-hover/sidebar:opacity-100 transition-opacity duration-300 flex-1">
-                        {item.label}
-                      </span>
-
-                      {item.badge && item.badge !== "0" && (
-                        <span className="px-2 py-0.5 rounded-lg text-xs font-semibold bg-gradient-to-r from-orange-500 to-red-600 text-white opacity-0 group-hover/sidebar:opacity-100 transition-opacity duration-300">
-                          {item.badge}
+                    {disabled ? (
+                      <span
+                        title="Aucune tâche de suivi assignée"
+                        className="w-full flex items-center gap-3 px-4 py-3 rounded-xl text-left relative overflow-hidden text-gray-300 cursor-not-allowed select-none"
+                      >
+                        <Icon className="w-5 h-5 flex-shrink-0" />
+                        <span className="text-sm font-medium whitespace-nowrap opacity-0 group-hover/sidebar:opacity-100 transition-opacity duration-300 flex-1">
+                          {item.label}
                         </span>
-                      )}
-                    </Link>
+                        <Lock
+                          size={13}
+                          className="opacity-0 group-hover/sidebar:opacity-100 transition-opacity duration-300"
+                        />
+                      </span>
+                    ) : (
+                      <Link
+                        href={item.href}
+                        className={`w-full flex items-center gap-3 px-4 py-3 rounded-xl transition-all text-left relative overflow-hidden ${
+                          isActive
+                            ? "bg-gradient-to-r from-orange-500 to-red-600 text-white shadow-lg shadow-orange-500/30"
+                            : "text-gray-600 hover:bg-gray-50 hover:text-gray-900"
+                        }`}
+                      >
+                        <Icon className="w-5 h-5 flex-shrink-0" />
+                        <span className="text-sm font-medium whitespace-nowrap opacity-0 group-hover/sidebar:opacity-100 transition-opacity duration-300 flex-1">
+                          {item.label}
+                        </span>
+                        {item.badge && item.badge !== "0" && (
+                          <span className="px-2 py-0.5 rounded-lg text-xs font-semibold bg-gradient-to-r from-orange-500 to-red-600 text-white opacity-0 group-hover/sidebar:opacity-100 transition-opacity duration-300">
+                            {item.badge}
+                          </span>
+                        )}
+                      </Link>
+                    )}
                   </li>
                 );
               })}

@@ -1,8 +1,8 @@
-"use client";
+﻿"use client";
 
 import { useState } from "react";
 import { DocumentSignaturePad } from "./DocumentSignaturePad";
-import { signatureService } from "../../app/service/signature.service"; // ton service
+import { signatureService } from "../../app/services/signature.service"; // ton service
 import { SignDocumentPayload } from "../../app/types/signature.types";
 
 interface Props {
@@ -20,13 +20,9 @@ export function DocumentSignatureForm({ documentId, onSigned }: Props) {
     try {
       setLoading(true);
 
-      const payload: SignDocumentPayload = {
-        document_id: documentId,
-        signature: file,
-      };
-
       // Envoi via le service qui gère token et API
-      await signatureService.sign(payload);
+      // Utiliser la méthode disponible du service
+      await signatureService.signerDocument(documentId);
 
       console.log("Signature envoyée avec succès");
       onSigned?.();

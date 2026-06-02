@@ -1,3 +1,4 @@
+// lib/utils.ts
 
 export function formatDate(date: string | null | undefined): string {
   if (!date) return "—";

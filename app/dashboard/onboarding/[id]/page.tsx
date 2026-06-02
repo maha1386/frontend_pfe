@@ -1,0 +1,551 @@
+"use client";
+
+import { useState, useEffect } from "react";
+import { useParams, useRouter, useSearchParams } from "next/navigation";
+import {
+  ArrowLeft, CheckCircle2, Clock, AlertCircle,
+  ChevronDown, ChevronUp, Pencil, Trash2, UserCircle2, Plus,
+} from "lucide-react";
+import { useOnboarding } from "../../../hooks/onboarding/useOnboarding2";
+import { Task, TaskStatus, TaskType } from "../../../types/onboarding";
+
+// ── Types ─────────────────────────────────────────────────
+interface Responsable {
+  id:         number;
+  first_name: string;
+  last_name:  string;
+  role:       { name: string } | null;
+}
+
+// ── Hook useResponsables ──────────────────────────────────
+function useResponsables() {
+  const [responsables, setResponsables] = useState<Responsable[]>([]);
+  const [loading, setLoading]           = useState(true);
+
+  useEffect(() => {
+    const fetchResponsables = async () => {
+      try {
+        const res = await fetch(
+          `${process.env.NEXT_PUBLIC_API_URL}/onboarding/responsables`,
+          {
+            headers: {
+              Authorization: `Bearer ${localStorage.getItem("token")}`,
+              Accept: "application/json",
+            },
+          }
+        );
+        const data = await res.json();
+        setResponsables(data.responsables ?? []);
+      } catch {
+        setResponsables([]);
+      } finally {
+        setLoading(false);
+      }
+    };
+    fetchResponsables();
+  }, []);
+
+  return { responsables, loading };
+}
+
+// ── Helpers ───────────────────────────────────────────────
+const STATUS_LABEL: Record<string, string> = {
+  en_attente:    "En attente",
+  en_cours:      "En cours",
+  en_validation: "En validation",
+  termine:       "Terminé",
+};
+
+const STATUS_CLASS: Record<string, string> = {
+  en_attente:    "bg-gray-100 text-gray-600",
+  en_cours:      "bg-blue-100 text-blue-700",
+  en_validation: "bg-amber-100 text-amber-700",
+  termine:       "bg-green-100 text-green-700",
+};
+
+const TYPE_CLASS: Record<TaskType, string> = {
+  technique:     "bg-purple-100 text-purple-700",
+  administratif: "bg-amber-100 text-amber-700",
+  humain:        "bg-pink-100 text-pink-700",
+  formation:     "bg-indigo-100 text-indigo-700",
+};
+
+const TYPE_LABEL: Record<TaskType, string> = {
+  technique:     "Technique",
+  administratif: "Administratif",
+  humain:        "Humain",
+  formation:     "Formation",
+};
+
+// ── EditTaskModal ─────────────────────────────────────────
+function EditTaskModal({
+  task,
+  onClose,
+  onSave,
+}: {
+  task: Task;
+  onClose: () => void;
+  onSave: (data: Partial<Task> & { responsable_id?: number | null }) => Promise<void>;
+}) {
+  const [title, setTitle]       = useState(task.task_title);
+  const [objective, setObj]     = useState(task.objective ?? "");
+  const [deadline, setDeadline] = useState(task.deadline?.split("T")[0] ?? "");
+  const [type, setType]         = useState<TaskType>(task.type);
+  const [status, setStatus]     = useState<TaskStatus>(task.status);
+  const [responsableId, setResponsableId] = useState<number | null>(
+    (task as Task & { responsable_id?: number | null }).responsable_id ?? null
+  );
+  const [saving, setSaving] = useState(false);
+  const { responsables, loading: loadingResp } = useResponsables();
+
+  const handleSave = async () => {
+    try {
+      setSaving(true);
+      await onSave({ task_title: title, objective, deadline, type, status, responsable_id: responsableId });
+      onClose();
+    } finally {
+      setSaving(false);
+    }
+  };
+
+  return (
+    <div className="fixed inset-0 z-50 flex items-center justify-center bg-black/40 p-4">
+      <div className="bg-white rounded-2xl shadow-xl w-full max-w-md p-6 space-y-4 max-h-[90vh] overflow-y-auto">
+        <h2 className="text-lg font-semibold text-gray-800">Modifier la tâche</h2>
+        <div className="space-y-3">
+          <div>
+            <label className="text-xs font-medium text-gray-500">Titre</label>
+            <input value={title} onChange={(e) => setTitle(e.target.value)}
+              className="mt-1 w-full px-3 py-2 border border-gray-200 rounded-xl text-sm focus:outline-none focus:ring-2 focus:ring-blue-500" />
+          </div>
+          <div>
+            <label className="text-xs font-medium text-gray-500">Objectif</label>
+            <textarea value={objective} onChange={(e) => setObj(e.target.value)} rows={3}
+              className="mt-1 w-full px-3 py-2 border border-gray-200 rounded-xl text-sm focus:outline-none focus:ring-2 focus:ring-blue-500 resize-none" />
+          </div>
+          <div className="grid grid-cols-2 gap-3">
+            <div>
+              <label className="text-xs font-medium text-gray-500">Deadline</label>
+              <input type="date" value={deadline} onChange={(e) => setDeadline(e.target.value)}
+                className="mt-1 w-full px-3 py-2 border border-gray-200 rounded-xl text-sm focus:outline-none focus:ring-2 focus:ring-blue-500" />
+            </div>
+            <div>
+              <label className="text-xs font-medium text-gray-500">Type</label>
+              <select value={type} onChange={(e) => setType(e.target.value as TaskType)}
+                className="mt-1 w-full px-3 py-2 border border-gray-200 rounded-xl text-sm focus:outline-none focus:ring-2 focus:ring-blue-500">
+                <option value="technique">Technique</option>
+                <option value="administratif">Administratif</option>
+                <option value="humain">Humain</option>
+                <option value="formation">Formation</option>
+              </select>
+            </div>
+          </div>
+          <div>
+            <label className="text-xs font-medium text-gray-500">Statut</label>
+            <select value={status} onChange={(e) => setStatus(e.target.value as TaskStatus)}
+              className="mt-1 w-full px-3 py-2 border border-gray-200 rounded-xl text-sm focus:outline-none focus:ring-2 focus:ring-blue-500">
+              <option value="en_attente">En attente</option>
+              <option value="en_cours">En cours</option>
+              <option value="en_validation">En validation</option>
+              <option value="termine">Terminé</option>
+            </select>
+          </div>
+          <div>
+            <label className="text-xs font-medium text-gray-500">Responsable de suivi</label>
+            <select value={responsableId ?? ""} onChange={(e) => setResponsableId(e.target.value ? Number(e.target.value) : null)}
+              disabled={loadingResp}
+              className="mt-1 w-full px-3 py-2 border border-gray-200 rounded-xl text-sm focus:outline-none focus:ring-2 focus:ring-blue-500 disabled:opacity-50">
+              <option value="">— Aucun responsable —</option>
+              {responsables.map((r) => (
+                <option key={r.id} value={r.id}>
+                  {r.first_name} {r.last_name}{r.role?.name ? ` (${r.role.name.replace(/_/g, " ")})` : ""}
+                </option>
+              ))}
+            </select>
+            {responsableId && (() => {
+              const r = responsables.find((r) => r.id === responsableId);
+              return r ? (
+                <div className="mt-2 flex items-center gap-2 px-3 py-2 bg-blue-50 border border-blue-100 rounded-lg">
+                  <div className="w-6 h-6 rounded-full bg-blue-200 text-blue-700 flex items-center justify-center text-xs font-bold flex-shrink-0">
+                    {r.first_name[0]}{r.last_name[0]}
+                  </div>
+                  <span className="text-xs text-blue-700 font-medium">{r.first_name} {r.last_name}</span>
+                </div>
+              ) : null;
+            })()}
+          </div>
+        </div>
+        <div className="flex gap-2 pt-2">
+          <button onClick={onClose} className="flex-1 px-4 py-2 border border-gray-200 rounded-xl text-sm text-gray-600 hover:bg-gray-50">
+            Annuler
+          </button>
+          <button onClick={handleSave} disabled={saving} className="btn-confirmer flex-1 disabled:opacity-50">
+            {saving ? "Enregistrement..." : "Enregistrer"}
+          </button>
+        </div>
+      </div>
+    </div>
+  );
+}
+
+// ── TaskCard ──────────────────────────────────────────────
+function TaskCard({
+  task,
+  onEdit,
+  onDelete,
+  highlighted,
+}: {
+  task: Task & { responsable_id?: number | null; responsable?: { first_name: string; last_name: string } };
+  onEdit:      (task: Task) => void;
+  onDelete:    (taskId: number) => void;
+  highlighted?: boolean;
+}) {
+  return (
+    <div
+      id={`task-${task.id}`}
+      className={`flex items-start gap-3 p-4 bg-white border rounded-xl hover:border-gray-200 transition-colors group ${
+        highlighted ? "border-blue-400 ring-2 ring-blue-300" : "border-gray-100"
+      }`}
+    >
+      <div className="mt-0.5 flex-shrink-0">
+        {task.status === "termine" ? (
+          <CheckCircle2 className="w-5 h-5 text-green-500" />
+        ) : task.status === "en_cours" ? (
+          <Clock className="w-5 h-5 text-blue-500" />
+        ) : (
+          <div className="w-5 h-5 rounded-full border-2 border-gray-300" />
+        )}
+      </div>
+      <div className="flex-1 min-w-0">
+        {task.day_name && (
+          <span className="text-xs font-bold uppercase tracking-widest text-blue-600 mb-1 block">
+            {task.day_name.charAt(0).toUpperCase() + task.day_name.slice(1).toLowerCase()}
+          </span>
+        )}
+        <p className={`text-sm font-medium ${task.status === "termine" ? "line-through text-gray-400" : "text-gray-800"}`}>
+          {task.task_title}
+        </p>
+        {task.objective && (
+          <p className="text-xs text-gray-400 mt-0.5">{task.objective}</p>
+        )}
+        <div className="flex items-center gap-2 mt-2 flex-wrap">
+          <span className={`text-xs px-2 py-0.5 rounded-full font-medium ${STATUS_CLASS[task.status] ?? "bg-gray-100 text-gray-600"}`}>
+            {STATUS_LABEL[task.status] ?? task.status}
+          </span>
+          <span className={`text-xs px-2 py-0.5 rounded-full font-medium ${TYPE_CLASS[task.type]}`}>
+            {TYPE_LABEL[task.type]}
+          </span>
+          {task.deadline && (
+            <span className="text-xs text-gray-400">
+              {new Date(task.deadline).toLocaleDateString("fr-FR")}
+            </span>
+          )}
+          {task.responsable && (
+            <span className="flex items-center gap-1 text-xs text-gray-500 bg-gray-50 border border-gray-100 px-2 py-0.5 rounded-full">
+              <UserCircle2 className="w-3 h-3 text-blue-400 flex-shrink-0" />
+              {task.responsable.first_name} {task.responsable.last_name}
+            </span>
+          )}
+        </div>
+      </div>
+      <div className="flex gap-1 opacity-0 group-hover:opacity-100 transition-opacity flex-shrink-0">
+        <button onClick={() => onEdit(task)}
+          className="p-1.5 hover:bg-blue-50 rounded-lg text-gray-400 hover:text-blue-600 transition-colors">
+          <Pencil className="w-3.5 h-3.5" />
+        </button>
+        <button onClick={() => onDelete(task.id)}
+          className="p-1.5 hover:bg-red-50 rounded-lg text-gray-400 hover:text-red-500 transition-colors">
+          <Trash2 className="w-3.5 h-3.5" />
+        </button>
+      </div>
+    </div>
+  );
+}
+
+// ── WeekBlock ─────────────────────────────────────────────
+function WeekBlock({
+  weekNumber,
+  tasks,
+  onEdit,
+  onDelete,
+  highlightedTaskId,
+}: {
+  weekNumber: number;
+  tasks:      Task[];
+  onEdit:     (task: Task) => void;
+  onDelete:   (id: number) => void;
+  highlightedTaskId?: number | null;
+}) {
+  const [open, setOpen] = useState(true);
+  const done = tasks.filter((t) => t.status === "termine").length;
+  const sorted = [...tasks].sort(
+    (a, b) => new Date(a.deadline ?? 0).getTime() - new Date(b.deadline ?? 0).getTime()
+  );
+
+  return (
+    <div className="border border-gray-100 rounded-xl overflow-hidden">
+      <button
+        onClick={() => setOpen((v) => !v)}
+        className="w-full flex items-center justify-between px-4 py-3 bg-gray-50 hover:bg-gray-100 transition-colors"
+      >
+        <div className="flex items-center gap-2">
+          <span className="text-sm font-medium text-gray-700">Semaine {weekNumber}</span>
+          <span className="text-xs text-gray-400">{done}/{tasks.length} terminées</span>
+        </div>
+        {open ? <ChevronUp className="w-4 h-4 text-gray-400" /> : <ChevronDown className="w-4 h-4 text-gray-400" />}
+      </button>
+      {open && (
+        <div className="p-3 space-y-2">
+          {sorted.map((t) => (
+            <TaskCard
+              key={t.id}
+              task={t}
+              onEdit={onEdit}
+              onDelete={onDelete}
+              highlighted={t.id === highlightedTaskId}
+            />
+          ))}
+        </div>
+      )}
+    </div>
+  );
+}
+
+// ── Page principale ───────────────────────────────────────
+export default function OnboardingDetailPage() {
+  const { id }       = useParams();
+  const router       = useRouter();
+  const searchParams = useSearchParams();
+
+  const taskIdParam       = searchParams.get("task");
+  const highlightedTaskId = taskIdParam ? Number(taskIdParam) : null;
+
+  const { onboarding, progression, loading, error, valider, updateTask, deleteTask } =
+    useOnboarding(Number(id));
+
+  const [editTask, setEditTask]             = useState<Task | null>(null);
+  const [validating, setValidating]         = useState(false);
+  const [validNotes, setValidNotes]         = useState("");
+  const [showValidModal, setShowValidModal] = useState(false);
+  const [expandedMonths, setExpandedMonths] = useState<Record<number, boolean>>({ 1: true });
+
+  // ✅ Ouvre le bon mois et scrolle vers la tâche
+  useEffect(() => {
+    if (!highlightedTaskId || !onboarding) return;
+    const task = onboarding.tasks.find((t) => t.id === highlightedTaskId);
+    if (task) {
+      setExpandedMonths((prev) => ({ ...prev, [task.month_number]: true }));
+      setTimeout(() => {
+        const el = document.getElementById(`task-${highlightedTaskId}`);
+        if (el) el.scrollIntoView({ behavior: "smooth", block: "center" });
+      }, 300);
+    }
+  }, [highlightedTaskId, onboarding]);
+
+  if (loading) {
+    return (
+      <div className="flex items-center justify-center py-20 text-gray-400 text-sm">
+        Chargement du plan...
+      </div>
+    );
+  }
+
+  if (error || !onboarding) {
+    return (
+      <div className="flex items-center gap-3 px-4 py-3 bg-red-50 border border-red-200 rounded-xl text-red-600 text-sm">
+        <AlertCircle className="w-4 h-4" />
+        {error ?? "Onboarding introuvable"}
+      </div>
+    );
+  }
+
+  const grouped = onboarding.tasks.reduce<Record<number, Record<number, Task[]>>>(
+    (acc, task) => {
+      if (!acc[task.month_number]) acc[task.month_number] = {};
+      if (!acc[task.month_number][task.week_number]) acc[task.month_number][task.week_number] = [];
+      acc[task.month_number][task.week_number].push(task);
+      return acc;
+    },
+    {}
+  );
+
+  const toggleMonth = (m: number) =>
+    setExpandedMonths((prev) => ({ ...prev, [m]: !prev[m] }));
+
+  const handleValider = async () => {
+    try {
+      setValidating(true);
+      await valider(validNotes);
+      setShowValidModal(false);
+    } catch (err) {
+      alert("Erreur: " + (err instanceof Error ? err.message : "inconnue"));
+    } finally {
+      setValidating(false);
+    }
+  };
+
+  return (
+    <div className="space-y-6">
+
+      {/* Header */}
+      <div className="space-y-3">
+        <div className="flex items-center gap-3">
+          <button onClick={() => router.back()} className="p-2 hover:bg-gray-100 rounded-xl transition-colors">
+            <ArrowLeft className="w-4 h-4 text-gray-500" />
+          </button>
+          <div>
+            <h1 className="text-3xl font-bold text-blue-600">
+              {onboarding.user.first_name} {onboarding.user.last_name}
+            </h1>
+            <p className="text-gray-500 mt-1">Plan d'intégration</p>
+          </div>
+        </div>
+        <div className="flex items-center gap-3">
+          <span className={`px-3 py-1.5 rounded-full text-xs font-medium ${
+            onboarding.status === "valide" ? "bg-green-100 text-green-700" : "bg-amber-100 text-amber-700"
+          }`}>
+            {onboarding.status === "valide" ? "✓ Validé" : "En attente de validation"}
+          </span>
+          {onboarding.status !== "valide" && (
+            <button onClick={() => setShowValidModal(true)} className="btn-valider">
+              ✓ Valider l'onboarding
+            </button>
+          )}
+        </div>
+      </div>
+
+      {/* Progression */}
+      <div className="bg-white rounded-2xl border border-gray-100 p-5">
+        <div className="flex items-center justify-between mb-3">
+          <span className="text-sm font-medium text-gray-700">Progression globale</span>
+          <span className="text-2xl font-bold text-blue-600">{progression}%</span>
+        </div>
+        <div className="h-2 bg-gray-100 rounded-full overflow-hidden">
+          <div className="h-full bg-blue-500 rounded-full transition-all duration-500" style={{ width: `${progression}%` }} />
+        </div>
+        {onboarding.status === "valide" && onboarding.validatedBy && (
+          <p className="text-xs text-gray-400 mt-2">
+            Validé par {onboarding.validatedBy.first_name} {onboarding.validatedBy.last_name}
+            {onboarding.validated_at && <> le {new Date(onboarding.validated_at).toLocaleDateString("fr-FR")}</>}
+          </p>
+        )}
+      </div>
+
+      {/* Mois → Semaines → Tâches */}
+      <div className="space-y-4">
+        {Object.entries(grouped)
+          .sort(([a], [b]) => Number(a) - Number(b))
+          .map(([monthStr, weeks]) => {
+            const month    = Number(monthStr);
+            const allTasks = Object.values(weeks).flat();
+            const done     = allTasks.filter((t) => t.status === "termine").length;
+            const pct      = allTasks.length ? Math.round((done / allTasks.length) * 100) : 0;
+            const isOpen   = expandedMonths[month] ?? false;
+
+            const dates   = allTasks.map((t) => t.deadline).filter(Boolean) as string[];
+            const minDate = dates.length ? new Date(Math.min(...dates.map((d) => new Date(d).getTime()))) : null;
+            const maxDate = dates.length ? new Date(Math.max(...dates.map((d) => new Date(d).getTime()))) : null;
+            const fmtDate = (d: Date) => d.toLocaleDateString("fr-FR", { day: "numeric", month: "short", year: "numeric" });
+
+            return (
+              <div key={month} className="bg-white rounded-2xl border border-gray-100 overflow-hidden">
+                <button
+                  onClick={() => toggleMonth(month)}
+                  className="w-full flex items-center justify-between px-5 py-4 hover:bg-gray-50 transition-colors"
+                >
+                  <div className="flex items-center gap-3">
+                    <div className="w-8 h-8 rounded-full bg-blue-100 text-blue-600 flex items-center justify-center text-sm font-bold flex-shrink-0">
+                      {month}
+                    </div>
+                    <div className="text-left">
+                      <div className="flex items-center gap-2">
+                        <p className="font-semibold text-gray-800">Mois {month}</p>
+                        <span className={`text-xs px-2 py-0.5 rounded-full font-medium ${
+                          pct === 100 ? "bg-green-100 text-green-700" :
+                          pct > 0    ? "bg-blue-100 text-blue-700"   :
+                                       "bg-gray-100 text-gray-500"
+                        }`}>
+                          {pct === 100 ? "Terminé" : pct > 0 ? "En cours" : "Non démarré"}
+                        </span>
+                      </div>
+                      {minDate && maxDate && (
+                        <p className="text-xs text-gray-400 mt-0.5">{fmtDate(minDate)} — {fmtDate(maxDate)}</p>
+                      )}
+                      <p className="text-xs text-gray-400">{done}/{allTasks.length} tâches terminées</p>
+                    </div>
+                  </div>
+                  <div className="flex items-center gap-3">
+                    <span className="text-lg font-bold text-blue-600">{pct}%</span>
+                    <div className="w-24 h-1.5 bg-gray-100 rounded-full overflow-hidden">
+                      <div className="h-full bg-blue-400 rounded-full" style={{ width: `${pct}%` }} />
+                    </div>
+                    {isOpen ? <ChevronUp className="w-4 h-4 text-gray-400" /> : <ChevronDown className="w-4 h-4 text-gray-400" />}
+                  </div>
+                </button>
+
+                {isOpen && (
+                  <div className="px-5 pb-5 space-y-3">
+                    {Object.entries(weeks)
+                      .sort(([a], [b]) => Number(a) - Number(b))
+                      .map(([weekStr, tasks]) => (
+                        <WeekBlock
+                          key={weekStr}
+                          weekNumber={Number(weekStr)}
+                          tasks={tasks}
+                          onEdit={setEditTask}
+                          onDelete={(taskId) => deleteTask(taskId)}
+                          highlightedTaskId={highlightedTaskId}
+                        />
+                      ))}
+                  </div>
+                )}
+              </div>
+            );
+          })}
+      </div>
+
+      {/* Modal modifier tâche */}
+      {editTask && (
+        <EditTaskModal
+          task={editTask}
+          onClose={() => setEditTask(null)}
+          onSave={(data) =>
+            updateTask(editTask.id, {
+              ...data,
+              objective:      data.objective ?? undefined,
+              responsable_id: (data as typeof data & { responsable_id?: number | null }).responsable_id,
+            })
+          }
+        />
+      )}
+
+      {/* Modal validation */}
+      {showValidModal && (
+        <div className="fixed inset-0 z-50 flex items-center justify-center bg-black/40 p-4">
+          <div className="bg-white rounded-2xl shadow-xl w-full max-w-md p-6 space-y-4 max-h-[90vh] overflow-y-auto">
+            <h2 className="text-lg font-semibold text-gray-800">Valider l'onboarding</h2>
+            <p className="text-sm text-gray-500">
+              Confirmez-vous la validation du plan de{" "}
+              <strong>{onboarding.user.first_name} {onboarding.user.last_name}</strong> ?
+            </p>
+            <div>
+              <label className="text-xs font-medium text-gray-500">Notes (optionnel)</label>
+              <textarea value={validNotes} onChange={(e) => setValidNotes(e.target.value)} rows={3}
+                placeholder="Commentaires sur le plan..."
+                className="mt-1 w-full px-3 py-2 border border-gray-200 rounded-xl text-sm focus:outline-none focus:ring-2 focus:ring-green-500 resize-none" />
+            </div>
+            <div className="grid grid-cols-2 gap-3 pt-1">
+              <button onClick={() => setShowValidModal(false)}
+                className="px-4 py-2 border border-gray-200 rounded-xl text-sm text-gray-600 hover:bg-gray-50">
+                Annuler
+              </button>
+              <button onClick={handleValider} disabled={validating} className="btn-confirmer disabled:opacity-50">
+                {validating ? "Validation..." : "Confirmer"}
+              </button>
+            </div>
+          </div>
+        </div>
+      )}
+    </div>
+  );
+}

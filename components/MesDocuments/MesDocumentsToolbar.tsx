@@ -27,8 +27,7 @@ export function MesDocumentsToolbar({
 
   return (
     <div className="bg-white p-4 rounded-lg border border-slate-200">
-      <div className="flex flex-col md:flex-row gap-3 items-center">
-
+      <div className="flex flex-row gap-3 items-center">
         {/* 🔍 Search */}
         <div className="flex-1 relative md:flex-[0.6]">
           <Search className="absolute left-3 top-1/2 -translate-y-1/2 text-slate-400" size={16} />

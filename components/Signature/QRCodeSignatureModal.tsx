@@ -2,7 +2,7 @@
 
 import { useState, useEffect } from "react";
 import { X, QrCode, Loader2, CheckCircle, RefreshCw } from "lucide-react";
-import { genererToken } from "../../app/service/signature.service";
+import { genererToken } from "../../app/services/signature.service";
 
 interface QRCodeModalProps {
   isOpen: boolean;

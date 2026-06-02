@@ -1,9 +1,9 @@
-"use client";
+﻿"use client";
 
 import { X, Upload, Save } from "lucide-react";
 import React, { useState, useEffect } from "react";
 import { Document } from "@/app/types/document.types";
-import { documentService } from "@/app/service/document.service";
+import { documentService } from "@/app/services/document.service";
 
 interface Props {
   document: Document | null;
@@ -109,7 +109,7 @@ export function DocumentEditModal({ document, isOpen, onClose, onSuccess }: Prop
             <p className="text-sm font-medium text-gray-700 mb-1">
               Cliquer pour changer le fichier (optionnel)
             </p>
-            <p className="text-xs text-gray-500">PDF (max. 10 MB)</p>
+            <p className="text-xs text-gray-500">PDF (max. 100 MB)</p>
             <input
               type="file"
               accept=".pdf"

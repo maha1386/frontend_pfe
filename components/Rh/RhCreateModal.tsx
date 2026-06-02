@@ -4,7 +4,7 @@ import {
   X, UserPlus, Loader2, Check,
   User, Mail, Phone, Calendar, ChevronDown,
 } from "lucide-react";
-import { useRhs } from "../../app/hook/useRhs";
+import { useRhs } from "../../app/hooks/useRhs";
 import React from "react"; 
 
 interface RhCreateModalProps {

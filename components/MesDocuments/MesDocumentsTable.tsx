@@ -15,18 +15,13 @@ export function MesDocumentsTable({
   onSign,
 }: MesDocumentsTableProps) {
 
-    // 🎯 Calcul du status
+    //  Calcul du status
     const getDocumentStatus = (doc: Document) => {
-    // Si le document ne nécessite pas de signature
     if (!doc.signature_req) return "À lire";
-
-    // Si toutes les assignations sont signées
-    const allSigned = doc.assignments?.every(a => a.status === "signed");
-    if (allSigned) return "Signé";
-
-    // Sinon, si le document nécessite une signature mais n'est pas encore signé
+    const hasSigned = doc.assignments?.some(a => a.status === "signed");
+    if (hasSigned) return "Signé";
     return "En cours";
-    };
+  };
   return (
     <div className="bg-white rounded-xl border border-slate-200 shadow-sm">
       <div className="overflow-x-auto">

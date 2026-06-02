@@ -46,7 +46,16 @@ export function RhsTable({ rhs, loading, onToggleActive, onModifier, onDetails }
                   <td className="px-6 py-6 text-gray-800">{r.first_name}</td>
                   <td className="px-6 py-6 text-gray-800">{r.email}</td>
                   <td className="px-6 py-6 text-gray-800">{r.phone_number}</td>
-                  <td className="px-6 py-6 text-gray-800">{new Date(r.date_of_hire).toLocaleDateString("fr-FR")}</td>
+                  <td className="px-6 py-6 text-gray-800">
+                    {(() => {
+                      if (!r.date_of_hire) return "—";
+                      const parts = r.date_of_hire.split(/[-\/]/);
+                      if (parts.length === 3 && parts[0].length === 2) {
+                        return new Date(`${parts[2]}-${parts[1]}-${parts[0]}`).toLocaleDateString("fr-FR");
+                      }
+                      return new Date(r.date_of_hire).toLocaleDateString("fr-FR");
+                    })()}
+                  </td>
                   <td className="px-6 py-6">
                     <span
                       className={`inline-flex items-center gap-1.5 px-3 py-1 rounded-full text-xs font-semibold ${

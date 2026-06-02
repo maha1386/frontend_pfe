@@ -1,4 +1,4 @@
-"use client";
+﻿"use client";
 
 import { useState, useEffect } from "react";
 import { Pagination } from "@/app/types/document.types";
@@ -8,8 +8,8 @@ import { TableDocuments } from "../../../components/Document/DocumentsTable";
 import { DocumentsPagination } from "../../../components/Document/DocumentsPagination";
 import { DocumentCreateModal } from "../../../components/Document/DocumentCreateModal";
 import { DocumentEditModal } from "../../../components/Document/DocumentEditModal";
-import { useDocuments } from "../../hook/useDocuments";
-import { documentService } from "@/app/service/document.service";
+import { useDocuments } from "../../hooks/useDocuments";
+import { documentService } from "../../services/document.service";
 
 export default function DocumentsPage() {
   const { documents, loading, error, fetchDocuments, addDocument, updateDocument, deleteDocument } = useDocuments();
@@ -100,10 +100,10 @@ export default function DocumentsPage() {
   };
 
   return (
-    <div className="pt-0 px-6 pb-6">
+    <div className="p-6">
 
       <div className="mb-6">
-        <h1 className="text-3xl font-bold text-gray-900">Documents</h1>
+        <h1 className="text-2xl font-bold text-gray-900">Documents</h1>
         <p className="text-gray-500 text-sm mt-1">Gérez vos documents et fichiers</p>
       </div>
 
@@ -120,12 +120,10 @@ export default function DocumentsPage() {
         onView={handleView}
       />
 
-      <div className="mt-3">
-        <DocumentsPagination
-          pagination={{ ...pagination, total: documents.length, to: documents.length }}
-          onPageChange={() => {}}
-        />
-      </div>
+      <DocumentsPagination
+        pagination={{ ...pagination, total: documents.length, to: documents.length }}
+        onPageChange={() => {}}
+      />
 
       <DocumentCreateModal
         isOpen={createModalOpen}

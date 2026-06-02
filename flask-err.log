@@ -1,0 +1,6 @@
+[33mConnectivity check to the model hoster has been skipped because `PADDLE_PDX_DISABLE_MODEL_SOURCE_CHECK` is enabled.[0m
+Informationÿ: impossible de trouver des fichiers pour le(s) modŠle(s) sp‚cifi‚(s).
+[32mCreating model: ('PP-OCRv5_server_det', None)[0m
+[32mModel files already exist. Using cached files. To redownload, please delete the directory manually: `C:\Users\bourb\.paddlex\official_models\PP-OCRv5_server_det`.[0m
+[32mCreating model: ('latin_PP-OCRv5_mobile_rec', None)[0m
+[32mModel files already exist. Using cached files. To redownload, please delete the directory manually: `C:\Users\bourb\.paddlex\official_models\latin_PP-OCRv5_mobile_rec`.[0m

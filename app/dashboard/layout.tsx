@@ -23,11 +23,12 @@ export default function DashboardLayout({
       <div className="flex flex-1 overflow-hidden">
         <SidebarFinal isOpen={isSidebarOpen} />
 
-        {/* Zone de contenu principale */}
-        <main className="flex-1 overflow-y-auto p-8 min-w-0">
-          {children}
+          {/* Zone de contenu principale */}
+        <main className="flex-1 overflow-hidden min-w-0 flex flex-col">
+          <div className="flex-1 min-h-0 overflow-y-auto">
+            {children}
+          </div>
         </main>
       </div>
-    </div>
-  );
+    </div>);
 }
