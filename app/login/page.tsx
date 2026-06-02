@@ -15,30 +15,30 @@ export default function LoginPage() {
   }, []);
 
   const redirectByRole = (
-    role: string | undefined,
-    signaturePath: string | null,
-    cvData?: object | null
-  ) => {
-    console.log("=== redirectByRole ===", { role, signaturePath, cvData });
+  role: string | undefined,
+  signaturePath: string | null,
+  cvData?: object | null
+) => {
+  console.log("=== redirectByRole ===", { role, signaturePath, cvData });
 
-    const isCollaborateur = role === "new_collaborateur" || role === undefined;
+  const STAFF_ROLES = ["rh", "manager"];
+  const isStaff = role !== undefined && STAFF_ROLES.includes(role);
 
-    if (isCollaborateur) {
-      if (!signaturePath) {
-        router.push("/collaborateur/setup");  // 1ère fois : créer signature
-      } else if (!cvData) {
-        router.push("/collaborateur/cv");     // signature ok → upload CV
-      } else {
-        router.push("/dashboardc");           // tout ok → dashboard direct
-      }
-    } else if (role === "rh") {
-      router.push("/dashboard");
-    } else if (role === "manager") {
-      router.push("/dashboardm");
+  if (!isStaff) {
+    // Tous les collaborateurs (new_collaborateur, développeur frontend, etc.)
+    if (!signaturePath) {
+      router.push("/collaborateur/setup");
+    } else if (!cvData) {
+      router.push("/collaborateur/cv");
     } else {
-      router.push("/dashboard");
+      router.push("/dashboardc");
     }
-  };
+  } else if (role === "rh") {
+    router.push("/dashboard");
+  } else if (role === "manager") {
+    router.push("/dashboardm");
+  }
+};
 
   const redirectAfterLogin = (data: {
     token: string;

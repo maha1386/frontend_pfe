@@ -30,6 +30,7 @@ const STATUS_STYLE: Record<TaskStatus, { bg: string; color: string; dot: string 
   en_cours:      { bg: "#dbeafe", color: "#1d4ed8", dot: "#3b82f6" },
   en_validation: { bg: "#fef3c7", color: "#92400e", dot: "#f59e0b" },
   termine:       { bg: "#dcfce7", color: "#166534", dot: "#22c55e" },
+  rejetee:       { bg: "#fee2e2", color: "#991b1b", dot: "#ef4444" },
 };
 
 // ── Helpers ──────────────────────────────────────────────────
@@ -37,9 +38,7 @@ const STATUS_STYLE: Record<TaskStatus, { bg: string; color: string; dot: string 
 function fmtDate(d: string | null) {
   if (!d) return "—";
   return new Date(d).toLocaleDateString("fr-FR", {
-    day: "numeric",
-    month: "short",
-    year: "numeric",
+    day: "numeric", month: "short", year: "numeric",
   });
 }
 
@@ -234,14 +233,14 @@ function TaskRow({
 
   return (
     <li ref={rowRef} id={`task-${task.id}`} style={{
-      border: highlight ? "2px solid #2563eb" : "1px solid #e5e7eb",
+      border: highlight ? "2px solid #2563eb" : task.rejection_reason ? "1px solid #fecaca" : "1px solid #e5e7eb",
       borderRadius: 8, overflow: "hidden", transition: "box-shadow .3s",
       boxShadow: highlight ? "0 0 0 3px #dbeafe" : "none",
     }}>
       <div
         style={{
           display: "flex", alignItems: "center", gap: 10, padding: "10px 12px",
-          background: highlight ? "#eff6ff" : task.status === "termine" ? "#f9fafb" : "#fff",
+          background: highlight ? "#eff6ff" : task.status === "termine" ? "#f9fafb" : task.rejection_reason ? "#fff5f5" : "#fff",
           cursor: "pointer",
         }}
         onClick={() => setExpanded(v => !v)}
@@ -256,21 +255,32 @@ function TaskRow({
         </div>
 
         {/* Titre */}
-        <span style={{
-          flex: 1, fontSize: 14,
-          textDecoration: task.status === "termine" ? "line-through" : "none",
-          color: task.status === "termine" ? "#9ca3af" : "#111827",
-          fontWeight: highlight ? 600 : 400,
-        }}>
-          {task.title}
-          {highlight && <span style={{ marginLeft: 8, fontSize: 11, color: "#2563eb", fontWeight: 500 }}>← depuis l'agenda</span>}
-        </span>
+        <div style={{ flex: 1, minWidth: 0 }}>
+          <span style={{
+            fontSize: 14,
+            textDecoration: task.status === "termine" ? "line-through" : "none",
+            color: task.status === "termine" ? "#9ca3af" : "#111827",
+            fontWeight: highlight ? 600 : 400,
+          }}>
+            {task.title}
+            {highlight && <span style={{ marginLeft: 8, fontSize: 11, color: "#2563eb", fontWeight: 500 }}>← depuis l'agenda</span>}
+          </span>
+          {/* Raison rejet inline sous le titre */}
+          {task.rejection_reason && (
+            <p style={{ fontSize: 11, color: "#b91c1c", margin: "3px 0 0", display: "flex", alignItems: "center", gap: 4 }}>
+              ⚠️ Rejeté : {task.rejection_reason}
+            </p>
+          )}
+        </div>
 
-        {/* Select statut */}
+        {/* Select statut — rejetee masqué du select collaborateur */}
         <div onClick={e => e.stopPropagation()}>
-          <select disabled={statusLoading} value={task.status}
+          <select
+            disabled={statusLoading}
+            value={task.status === "rejetee" ? "en_cours" : task.status}
             onChange={e => handleStatus(e.target.value as TaskStatus)}
-            style={{ fontSize: 11, fontWeight: 500, padding: "3px 8px", borderRadius: 20, background: s.bg, color: s.color, border: `1px solid ${s.dot}`, cursor: "pointer", appearance: "none" }}>
+            style={{ fontSize: 11, fontWeight: 500, padding: "3px 8px", borderRadius: 20, background: s.bg, color: s.color, border: `1px solid ${s.dot}`, cursor: "pointer", appearance: "none" }}
+          >
             {STATUS_OPTIONS.map(o => <option key={o.value} value={o.value}>{o.label}</option>)}
           </select>
         </div>
@@ -299,6 +309,32 @@ function TaskRow({
 
       {expanded && (
         <div style={{ padding: "4px 12px 12px", borderTop: "1px solid #f3f4f6", background: "#fafafa" }}>
+
+          {/* Bannière rejet détaillée */}
+          {task.rejection_reason && (
+            <div style={{
+              margin: "8px 0 12px",
+              padding: "10px 12px",
+              background: "#fef2f2",
+              border: "1px solid #fecaca",
+              borderLeft: "3px solid #ef4444",
+              borderRadius: 8,
+              display: "flex",
+              gap: 8,
+              alignItems: "flex-start",
+            }}>
+              <span style={{ fontSize: 16 }}>⚠️</span>
+              <div>
+                <p style={{ fontSize: 12, fontWeight: 600, color: "#991b1b", margin: "0 0 2px" }}>
+                  Tâche rejetée par le responsable
+                </p>
+                <p style={{ fontSize: 13, color: "#7f1d1d", margin: 0 }}>
+                  {task.rejection_reason}
+                </p>
+              </div>
+            </div>
+          )}
+
           <CommentList comments={task.comments ?? []} onDelete={handleDelete} />
           <CommentForm taskId={task.id} onAdded={() => onCommentAdded(task.id)} />
         </div>
@@ -331,12 +367,17 @@ export function IntegrationPlanComponent({ plan, onRefresh, highlightTaskId, avi
     await updateMyTask(taskId, status);
     setPhases(prev =>
       prev
-        .map(ph => ({ ...ph, tasks: ph.tasks.map(t => t.id !== taskId ? t : { ...t, status, completed: status === "termine" }) }))
+        .map(ph => ({
+          ...ph,
+          tasks: ph.tasks.map(t =>
+            t.id !== taskId ? t : { ...t, status, completed: status === "termine", rejection_reason: null }
+          ),
+        }))
         .map(ph => {
-          const done = ph.tasks.filter(t => t.completed).length;
-          const total = ph.tasks.length;
+          const done     = ph.tasks.filter(t => t.completed).length;
+          const total    = ph.tasks.length;
           const progress = total > 0 ? Math.round((done / total) * 100) : 0;
-          const s = progress === 100 ? "completed" : progress > 0 ? "in-progress" : "not-started";
+          const s        = progress === 100 ? "completed" : progress > 0 ? "in-progress" : "not-started";
           return { ...ph, progress, status: s };
         })
     );
@@ -383,7 +424,6 @@ export function IntegrationPlanComponent({ plan, onRefresh, highlightTaskId, avi
         {phases.map(phase => {
           const ps = phaseStatusLabel(phase.status);
 
-          // Grouper les tâches par semaine
           const tasksSorted = [...(phase.tasks ?? [])].sort((a, b) => {
             const wDiff = (a.week_number ?? 0) - (b.week_number ?? 0);
             if (wDiff !== 0) return wDiff;
@@ -399,8 +439,6 @@ export function IntegrationPlanComponent({ plan, onRefresh, highlightTaskId, avi
 
           return (
             <section key={phase.phase} style={{ background: "#fff", border: "1px solid #e5e7eb", borderRadius: 12, padding: 20 }}>
-
-              {/* Header phase/mois */}
               <div style={{ display: "flex", justifyContent: "space-between", alignItems: "flex-start", marginBottom: 16 }}>
                 <div>
                   <div style={{ display: "flex", alignItems: "center", gap: 8, marginBottom: 4 }}>
@@ -426,7 +464,6 @@ export function IntegrationPlanComponent({ plan, onRefresh, highlightTaskId, avi
                 </div>
               </div>
 
-              {/* Semaines collapsibles */}
               {Object.entries(byWeek)
                 .sort(([a], [b]) => Number(a) - Number(b))
                 .map(([weekStr, weekTasks]) => (
@@ -451,7 +488,6 @@ export function IntegrationPlanComponent({ plan, onRefresh, highlightTaskId, avi
 
       {/* ══ Sidebar droite ══ */}
       <aside style={{ width: 300, flexShrink: 0, display: "flex", flexDirection: "column", gap: 16 }}>
-
         <section style={{ background: "#fff", border: "1px solid #e5e7eb", borderRadius: 12, padding: 20 }}>
           <h3 style={{ fontSize: 15, fontWeight: 600, margin: "0 0 8px" }}>Rendez-vous planifiés</h3>
           {plan.meetings && plan.meetings.length > 0

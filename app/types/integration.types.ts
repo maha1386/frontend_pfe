@@ -1,7 +1,6 @@
 // app/types/integration.types.ts
 
-export type TaskStatus = "en_attente" | "en_cours" | "en_validation" | "termine";
-
+export type TaskStatus = "en_attente" | "en_cours" | "en_validation" | "termine" | "rejetee";
 export interface TaskComment {
   id: number;
   content: string | null;

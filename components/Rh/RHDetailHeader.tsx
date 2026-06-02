@@ -1,4 +1,4 @@
-"use client";
+﻿"use client";
 
 import { Edit2, PowerOff, ArrowLeft, Mail, Phone, Calendar } from "lucide-react";
 import { useRouter } from "next/navigation";
